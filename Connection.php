@@ -6,6 +6,7 @@ if (!empty($password)){
 $host = "localhost";
 $dbemail = "root";
 $dbpasswod = "";
+//temp database name
 $dbname = "mybook"
 
 //Create Database Interface Connection
