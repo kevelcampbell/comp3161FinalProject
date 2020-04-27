@@ -43,3 +43,37 @@ CREATE TABLE Guests(
     guest_telephone VARCHAR(100),
     PRIMARY KEY(guest_id)
 );
+CREATE TABLE Relatives(
+    relative_name VARCHAR(100)  
+);
+CREATE TABLE Schools(
+    school_name VARCHAR(100)  
+);
+CREATE TABLE Works(
+    work_name VARCHAR(100)  
+);
+GO
+
+CREATE PROCEDURE AddPhoto (@photo_id VARCHAR(100),@photo_name VARCHAR(100))
+AS
+INSERT INTO Photos VALUES(@photo_id,@photo_name)
+GO
+
+CREATE PROCEDURE AddPost (@post_id VARCHAR(100),@post_name VARCHAR(100))
+AS
+INSERT INTO Posts VALUES(@post_id,@post_name)
+GO
+
+CREATE PROCEDURE AddFriend (@friend_id VARCHAR(100),@friend_name VARCHAR(100),@friend_type VARCHAR(100))
+AS
+INSERT INTO Friends VALUES(@friend_id,@friend_name,@friend_type)
+GO
+
+CREATE PROCEDURE CREATEGroup (@group_id VARCHAR(100),@group_name VARCHAR(100))
+AS
+INSERT INTO Groups VALUES(@Group_id,@Group_name)
+GO
+
+CREATE VIEW [Guests] 
+AS
+SELECT * FROM Guests;
