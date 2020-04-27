@@ -9,3 +9,5 @@ Akeem Purrier: Script to Populate the Database
 Delano Tracey: Queries
 
 Giselle Mclean: Database Connection
+
+Sania Spence: 	Database Connection
