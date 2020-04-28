@@ -69,11 +69,17 @@ AS
 INSERT INTO Friends VALUES(@friend_id,@friend_name,@friend_type)
 GO
 
-CREATE PROCEDURE CREATEGroup (@group_id VARCHAR(100),@group_name VARCHAR(100))
+CREATE PROCEDURE CreateGroup (@group_id VARCHAR(100),@group_name VARCHAR(100))
 AS
 INSERT INTO Groups VALUES(@Group_id,@Group_name)
 GO
 
-CREATE VIEW [Guests] 
+CREATE PROCEDURE CreateUser (@user_id VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100),@user_name VARCHAR(100), @user_password VARCHAR(100))
 AS
-SELECT * FROM Guests;
+INSERT INTO USers VALUES(@user_id,@user_email,user_dob,user_tel,user_addr,user_name,user_password)
+GO
+
+
+CREATE VIEW [Posts] 
+AS
+SELECT * FROM Posts;
