@@ -100,11 +100,16 @@ CREATE TABLE Comments(
     );
 
 GO
-CREATE PROCEDURE CreateUser (@user_id VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100),@user_name VARCHAR(100), @user_password VARCHAR(100))
+CREATE PROCEDURE CreateUser (@user_id VARCHAR(100),@user_fname VARCHAR(100), @user_lname VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
 AS
-INSERT INTO Users VALUES(@user_id,@user_fname,user_lname,user_dob,user_password,user_addr);
+INSERT INTO Users VALUES(@user_id,@user_fname,@user_lname,@user_dob,@user_password,@user_addr);
 INSERT INTO Emails VALUES(@user_id,@user_email);
 INSERT INTO Telephones VALUES(@user_id,@user_tel);
+GO
+
+CREATE PROCEDURE CreateProfile (@user_id VARCHAR(100),@user_fname VARCHAR(100),@user_lname VARCHAR(100),@profile_description text,@profile_photo IMAGE)
+AS
+INSERT INTO Profiles VALUES(@user_id,@user_fname,@user_lname,@profile_description,@profile_photo);
 GO
 
 CREATE PROCEDURE AddPhoto (@photo_id VARCHAR(100),@user_id VARCHAR(100),@user_fname VARCHAR(100),@user_lname VARCHAR(100),@photo_name VARCHAR(100),@photo_image IMAGE,@photo_datetime DATETIME)
