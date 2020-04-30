@@ -3,8 +3,8 @@ User (user_id, user_dob, user_f_nme, user_l_nme, user_paswd, user_addr)
 Email (user_id, user_email)
 Telephone (user_id, user_tel)
 Profile ( user_id,user_nme,profile_desciption,profile_photo)
-Photos (photo_id, user_id. photo_nme, photo_image,datetime)
-Posts (posts_id, user_id.post_nme, post_text,datetime)
+Photos (photo_id, user_id,profile_id photo_nme, photo_image,datetime)
+Posts (posts_id, user_id,profile_id,post_nme, post_text,datetime)
 Groups (group_id, user_id.group_nme,group_description) note: user_id would be the creator’s user_id
 GroupMembers(group_id,user_id,member_status) note: member_type either being creator, content creator or member
 GroupPosts(group_id,post_id)
