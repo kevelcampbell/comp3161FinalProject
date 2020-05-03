@@ -1,20 +1,42 @@
-from flask_ldap3_login.forms import LDAPLoginForm
+from flask import Flask, render_template, redirect, url_for, request, session, flash
+from functools import wraps
 
-@app.route('/')
+app = Flask(__name__)
+
+app.secret_key = "secret"
+
+def login_required(f):
+  @wraps(f)
+  def wrap(*args, **kwargs):
+    if 'logged_in' in session:
+      return f(*args, **kwargs)
+    else:
+      flash('Please login to access this feature.')
+      return redirect(url_for('login'))
+  return wrap
+
+@app.route('/home')
+@login_required
 def home():
-    # Redirect users who are not logged in.
-    if not current_user or current_user.is_anonymous:
-        return redirect(url_for('login'))
-    return render_template('home.html')
-    
-@app.route('/login', methods=['GET', 'POST'])
+  return render_template('home.html')
+
+@app.route('/', methods=['GET', 'POST'])
 def login():
-    template = 'index.html'
-    form = LDAPLoginForm()
-    if form.validate_on_submit():
-        login_user(form.user)  # Tell flask-login to log them in.
-        return redirect('/')  # Send them home
-    return render_template(template, form=form)
+  error = None
+  if request.method == 'POST':
+    if request.form['email'] != 'admin' or request.form['password'] != 'admin':
+      error = 'Please enter valid login credentials.'
+    else:
+      session['logged_in'] = True
+      return redirect(url_for('home'))
+  return render_template('index.html', error=error)
+
+@app.route('/logout')
+@login_required
+def logout():
+  session.pop('logged_in', None)
+  flash('you have been successfully logged out')
+  return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+  app.run(debug=True)

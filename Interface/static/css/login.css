@@ -84,7 +84,7 @@ input:placeholder-shown+label {
     transform: translateY(15px);
 }
 
-.h1 {
+.h1.login{
     color: #fff;
     opacity: 0.8;
     font-size: 26px;
@@ -262,4 +262,8 @@ text-align: center;
 position:relative;
 bottom: -425px;
 color: #0d47a1;
+}
+.container.bottom{
+    margin-top: 30vh;
+    width: 52%;
 }
