@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash
+from flask import Flask, render_template, redirect, url_for, request, session, flash, json
 from functools import wraps
 from flask_mysqldb import MySQL
 
@@ -33,10 +33,10 @@ def home():
 def login():
   error = None
   if request.method == 'POST':
-    email = request.form['email']
+    uid = request.form['UserID']
     password = request.form['password']
     cur = mysql.connection.cursor()
-    cur.execute("SELECT user_name AND user_password FROM users WHERE user_name='"+email+"' AND user_password ='"+password+"' ")
+    cur.execute("SELECT user_id AND user_password FROM users WHERE user_id='"+uid+"' AND user_password ='"+password+"' ")
     user = cur.fetchone()
     cur.close()
     if user:
@@ -44,7 +44,10 @@ def login():
       return redirect(url_for('home'))
     else:
       error = 'Please enter valid login credentials.'
+  if json.loads(session['response']):
+    return render_template('index.html', error=error, response=json.loads(session['response']))
   return render_template('index.html', error=error)
+  # return render_template('index.html', error=error)
 
 @app.route('/logout')
 @login_required
@@ -53,24 +56,35 @@ def logout():
   flash('you have been successfully logged out')
   return redirect(url_for('login'))
 
-# @app.route("/checkUser")
-# def checkUser():
-#   username = str(request.form["user"])
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == "POST":
+        firstName = request.form['user_fname']
+        lastName = request.form['user_lname']
+        dob = request.form['user_dob']
+        password = request.form['user_password']
+        email = request.form['user_email']
+        telephone = request.form['user_tel']
+        address = request.form['user_addr']
+        cur = mysql.connection.cursor()
+        # cur.execute("INSERT INTO users (user_fname, user_lname, user_dob, user_password, user_addr) VALUES WHERE user_id='"+uid+"' AND user_password ='"+password+"' ")
+        cur.execute("INSERT INTO users (user_fname, user_lname, user_dob, user_password, user_addr) VALUES (%s, %s, %s, %s, %s)", (firstName, lastName, dob, password, address))
+        mysql.connection.commit()
+        cur.execute("SELECT MAX(user_id) FROM users")
+        newID = str(cur.fetchone()[0])
+        cur.execute("INSERT INTO emails (user_id, user_email) VALUES (%s, %s)", (newID, email))
+        cur.execute("INSERT INTO telephones (user_id, user_tel) VALUES (%s, %s)", (newID, telephone))
+        mysql.connection.commit()
+        cur.close()
+        response = json.dumps('Sign up successful, your user ID is ' + newID)
+        session['response'] = response
+        # response = ('Sign up successful, your user ID is ' + newID)
+        return redirect(url_for('login', response=response))
+        # return render_template('index.html', response=response)
+    else:
+      response = 'Please review sign up details'
+      return render_template('signup.html', response=response)
+    return render_template('signup.html')
 
 if __name__ == '__main__':
   app.run(debug=True)
-
-
-# *----Snippet to add a user-----*
-# @app.route('/', methods=['GET', 'POST'])
-# def index():
-#     if request.method == "POST":
-#         details = request.form
-#         firstName = details['fname']
-#         lastName = details['lname']
-#         cur = mysql.connection.cursor()
-#         cur.execute("INSERT INTO MyUsers(firstName, lastName) VALUES (%s, %s)", (firstName, lastName))
-#         mysql.connection.commit()
-#         cur.close()
-#         return 'success'
-#     return render_template('index.html')

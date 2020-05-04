@@ -122,6 +122,9 @@ input:placeholder-shown+label {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+.login-wrapper.signup{
+    padding: 1em;
+}
 
 .login-left {
     width: 100%;
