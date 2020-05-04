@@ -157,12 +157,27 @@ AS
 INSERT INTO GroupMembers VALUES(@group_id,@user_id,@member_status);
 GO
 
-CREATE PROCEDURE AddGuests (@guest_id VARCHAR(100),@guest_name VARCHAR(100),@guest_email VARCHAR(100),@guest_addr VARCHAR(100),@guest_password VARCHAR (100),@guest_telephone VARCHAR(100))
+CREATE PROCEDURE CreateGuests (@guest_id VARCHAR(100),@guest_name VARCHAR(100),@guest_email VARCHAR(100),@guest_addr VARCHAR(100),@guest_password VARCHAR (100),@guest_telephone VARCHAR(100))
 AS
 INSERT INTO GroupMembers VALUES(@guest_id,@guest_name,@guest_email,@guest_addr,@guest_password,@guest_telephone);
 GO
 
+CREATE PROCEDURE ViewUserProfile (@user_id VARCHAR(100))
+AS
+SELECT * FROM Profiles WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE ViewUserPosts (@user_id VARCHAR(100))
+AS
+SELECT * FROM Posts WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE ViewUserFriendsNames (@user_id VARCHAR(100))
+AS
+SELECT user_fname,user_lname FROM Users WHERE user_id IN (SELECT user_id2 FROM Friends WHERE user_id1=@user_id);
+GO
 
 CREATE VIEW [Posts] 
 AS
 SELECT * FROM Posts;
+
