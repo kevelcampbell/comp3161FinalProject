@@ -98,6 +98,16 @@ CREATE TABLE Comments(
     FOREIGN KEY(user_fname) REFERENCES Users (user_fname)  ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(user_lname) REFERENCES Users (user_lname)  ON DELETE CASCADE ON UPDATE CASCADE
     );
+CREATE TABLE Guests(
+    guest_id VARCHAR(100),
+    guest_name VARCHAR(100),
+    guest_email VARCHAR(100),
+    guest_addr VARCHAR(100),
+    guest_password VARCHAR (100),
+    guest_telephone VARCHAR(100),
+    PRIMARY KEY (guest_id)
+);
+
 
 GO
 CREATE PROCEDURE CreateUser (@user_id VARCHAR(100),@user_fname VARCHAR(100), @user_lname VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
@@ -147,6 +157,10 @@ AS
 INSERT INTO GroupMembers VALUES(@group_id,@user_id,@member_status);
 GO
 
+CREATE PROCEDURE AddGuests (@guest_id VARCHAR(100),@guest_name VARCHAR(100),@guest_email VARCHAR(100),@guest_addr VARCHAR(100),@guest_password VARCHAR (100),@guest_telephone VARCHAR(100))
+AS
+INSERT INTO GroupMembers VALUES(@guest_id,@guest_name,@guest_email,@guest_addr,@guest_password,@guest_telephone);
+GO
 
 
 CREATE VIEW [Posts] 
