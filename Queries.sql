@@ -167,7 +167,7 @@ AS
 SELECT * FROM Profiles WHERE user_id=@user_id;
 GO
 
-CREATE PROCEDURE ViewUserPosts (@user_id VARCHAR(100))
+CREATE PROCEDURE ViewFriendsPosts (@user_id VARCHAR(100))
 AS
 SELECT * FROM Posts WHERE user_id=@user_id;
 GO
@@ -176,6 +176,28 @@ CREATE PROCEDURE ViewUserFriendsNames (@user_id VARCHAR(100))
 AS
 SELECT user_fname,user_lname FROM Users WHERE user_id IN (SELECT user_id2 FROM Friends WHERE user_id1=@user_id);
 GO
+
+CREATE PROCEDURE UpdateUserProfilePicture (@user_id VARCHAR(100),@profile_photo IMAGE)
+AS
+UPDATE Profiles SET profile_photo=@profile_photo WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE UpdateUserProfileDescription (@user_id VARCHAR(100),@profile_description TEXT)
+AS
+UPDATE Profiles SET profile_description=@profile_description WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE UpdateUserProfileFirstName (@user_id VARCHAR(100),@user_fname VARCHAR(100))
+AS
+UPDATE Users SET user_fname=@user_fname WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE UpdateUserProfileLastName (@user_id VARCHAR(100),@user_lname VARCHAR(100))
+AS
+UPDATE Users SET user_lname=@user_lname WHERE user_id=@user_id;
+GO
+
+
 
 CREATE VIEW [Posts] 
 AS
