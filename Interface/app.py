@@ -44,16 +44,13 @@ def login():
       return redirect(url_for('home'))
     else:
       error = 'Please enter valid login credentials.'
-  if json.loads(session['response']):
-    return render_template('index.html', error=error, response=json.loads(session['response']))
   return render_template('index.html', error=error)
-  # return render_template('index.html', error=error)
 
 @app.route('/logout')
 @login_required
 def logout():
   session.pop('logged_in', None)
-  flash('you have been successfully logged out')
+  flash(u'you have been successfully logged out', 'container bottom alert alert-warning')
   return redirect(url_for('login'))
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -76,11 +73,8 @@ def signup():
         cur.execute("INSERT INTO telephones (user_id, user_tel) VALUES (%s, %s)", (newID, telephone))
         mysql.connection.commit()
         cur.close()
-        response = json.dumps('Sign up successful, your user ID is ' + newID)
-        session['response'] = response
-        # response = ('Sign up successful, your user ID is ' + newID)
-        return redirect(url_for('login', response=response))
-        # return render_template('index.html', response=response)
+        flash(u'Sign up successful, your user ID is ' + newID, 'container bottom alert alert-success')
+        return redirect(url_for('login'))
     else:
       response = 'Please review sign up details'
       return render_template('signup.html', response=response)

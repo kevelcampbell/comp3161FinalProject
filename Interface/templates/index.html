@@ -47,11 +47,16 @@
             {{response}}
         </div>
     {% endif %}
-    {% for message in get_flashed_messages() %}
-        <div class="container bottom alert alert-warning" role="alert">
-            {{ message }}
-        </div>
-    {% endfor %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="{{ category }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <script src="../static/js/login.js"></script>
 </body>
 </html>
