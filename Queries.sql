@@ -144,6 +144,42 @@ AS
 INSERT INTO GroupMembers VALUES(@guest_id,@guest_name,@guest_email,@guest_addr,@guest_password,@guest_telephone);
 GO
 
+
+CREATE PROCEDURE GetUserFname (@user_id VARCHAR(100))
+AS
+SELECT user_fname FROM Users WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE GetUserLname (@user_id VARCHAR(100))
+AS
+SELECT user_Lname FROM Users WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE GetUserDob (@user_id VARCHAR(100))
+AS
+SELECT user_dob FROM Users WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE GetUserPassword (@user_id VARCHAR(100))
+AS
+SELECT user_password FROM Users WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE GetUserAddress (@user_id VARCHAR(100))
+AS
+SELECT user_addr FROM Users WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE GetUserEmail (@user_id VARCHAR(100))
+AS
+SELECT user_email FROM Emails WHERE user_id=@user_id;
+GO
+
+CREATE PROCEDURE GetUserTelephone (@user_id VARCHAR(100))
+AS
+SELECT user_tel FROM Telephones WHERE user_id=@user_id;
+GO
+
 CREATE PROCEDURE GetUserProfile (@user_id VARCHAR(100))
 AS
 SELECT * FROM Profiles WHERE user_id=@user_id;
@@ -154,10 +190,14 @@ AS
 SELECT * FROM Posts WHERE user_id=@user_id;
 GO
 
+CREATE PROCEDURE GetUserFriends (@user_id VARCHAR(100))
+AS
+SELECT * FROM Friends WHERE user_id=@user_id;
+GO
+
 CREATE PROCEDURE GetFriendsPosts (@user_id VARCHAR(100),@friend_id VARCHAR(100))
 AS
 SELECT * FROM Posts WHERE user_id IN  (SELECT friend_id FROM Friends WHERE user_id=@user_id AND friend_id=@friend_id);
-
 GO
 
 CREATE PROCEDURE GetUserFriendsNames (@user_id VARCHAR(100))
@@ -184,7 +224,6 @@ CREATE PROCEDURE UpdateUserLastName (@user_id VARCHAR(100),@user_lname VARCHAR(1
 AS
 UPDATE Users SET user_lname=@user_lname WHERE user_id=@user_id;
 GO
-
 
 
 CREATE VIEW [Posts] 
