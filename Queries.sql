@@ -9,11 +9,13 @@ CREATE TABLE Users(
 );
 CREATE TABLE Emails(
     user_id VARCHAR(100),
-    user_email VARCHAR(100)
+    user_email VARCHAR(100),
+    PRIMARY KEY(user_id,user_email)
 );
 CREATE TABLE Telephones(
     user_id VARCHAR(100),
-    user_tel INT(50)
+    user_tel INT(50),
+    PRIMARY KEY (user_id,user_tel)
 );
 CREATE TABLE Profiles(
     user_id VARCHAR(100),
@@ -67,17 +69,15 @@ CREATE TABLE Friends(
 CREATE TABLE GroupPosts(
     group_id VARCHAR(100),
     post_id VARCHAR(100),
-    FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (group_id,post_id),
+    FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE, 
     FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE TABLE Comments(
     comment_id VARCHAR(100),
-    user_id VARCHAR(100),
     post_id VARCHAR(100),
-    comment_text text,
-    comment_datetime DATETIME,
-    PRIMARY KEY (comment_id),
-    FOREIGN KEY(user_id) REFERENCES Users(user_id)  ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (comment_id,post_id),
+    FOREIGN KEY(comment_id) REFERENCES Posts(post_id)  ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
     );
 CREATE TABLE Guests(
@@ -114,9 +114,9 @@ AS
 INSERT INTO Posts VALUES(@post_id,@user_id,@post_text,@post_datetime);
 GO
 
-CREATE PROCEDURE AddComment(@comment_id VARCHAR(100),@user_id VARCHAR(100),@post_id VARCHAR(100),@comment_text text, @comment_datetime DATETIME)
+CREATE PROCEDURE AddComment(@comment_id VARCHAR(100),@post_id VARCHAR(100))
 AS
-INSERT INTO Comment VALUES(@comment_id,@user_id,@post_id,@comment_text,@comment_datetime);
+INSERT INTO Comments VALUES(@comment_id,@post_id);
 GO
 
 CREATE PROCEDURE AddFriend (@user_id VARCHAR(100),@friend_id VARCHAR(100),@friend_type VARCHAR(100))
