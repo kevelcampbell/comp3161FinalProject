@@ -4,3 +4,6 @@
 .pagination{
     text-align: center!important;
 }
+.card-img-top {
+    height: 2em;
+}

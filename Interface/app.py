@@ -29,6 +29,21 @@ def login_required(f):
 def home():
   return render_template('home.html')
 
+@app.route('/profile')
+@login_required
+def profile():
+  return render_template('profile.html')
+
+@app.route('/friends')
+@login_required
+def friends():
+  return render_template('friends.html')
+
+@app.route('/groups')
+@login_required
+def groups():
+  return render_template('groups.html')
+
 @app.route('/', methods=['GET', 'POST'])
 def login():
   error = None
