@@ -1,7 +1,7 @@
 CREATE TABLE Users(
     user_id VARCHAR(100),
-    user_fname VARCHAR(100),
-    user_lname VARCHAR(100),
+    user_f_name VARCHAR(100),
+    user_l_name VARCHAR(100),
     user_dob DATE,
     user_password VARCHAR(100),
     user_addr VARCHAR(100), 
@@ -20,7 +20,7 @@ CREATE TABLE Telephones(
 CREATE TABLE Profiles(
     user_id VARCHAR(100),
     profile_description text,
-    profile_photo IMAGE,
+    profile_photo BLOB,
     PRIMARY KEY(user_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -28,7 +28,7 @@ CREATE TABLE Photos(
     photo_id VARCHAR(100),
     user_id VARCHAR(100),
     photo_name VARCHAR(100),
-    photo_image IMAGE,
+    photo_image BLOB,
     photo_datetime DATETIME,
     PRIMARY KEY(photo_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
@@ -63,7 +63,7 @@ CREATE TABLE Friends(
     friend_type VARCHAR(100),
     PRIMARY KEY(user_id,friend_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(friend_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(friend_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE GroupPosts(
@@ -92,9 +92,9 @@ CREATE TABLE Guests(
 
 
 GO
-CREATE PROCEDURE CreateUser (@user_id VARCHAR(100),@user_fname VARCHAR(100), @user_lname VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
+CREATE PROCEDURE CreateUser (@user_id VARCHAR(100),@user_f_name VARCHAR(100), @user_l_name VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
 AS
-INSERT INTO Users VALUES(@user_id,@user_fname,@user_lname,@user_dob,@user_password,@user_addr);
+INSERT INTO Users VALUES(@user_id,@user_f_name,@user_l_name,@user_dob,@user_password,@user_addr);
 INSERT INTO Emails VALUES(@user_id,@user_email);
 INSERT INTO Telephones VALUES(@user_id,@user_tel);
 GO
@@ -147,7 +147,7 @@ GO
 
 CREATE PROCEDURE GetUserFname (@user_id VARCHAR(100))
 AS
-SELECT user_fname FROM Users WHERE user_id=@user_id;
+SELECT user_f_name FROM Users WHERE user_id=@user_id;
 GO
 
 CREATE PROCEDURE GetUserLname (@user_id VARCHAR(100))
@@ -202,7 +202,7 @@ GO
 
 CREATE PROCEDURE GetUserFriendsNames (@user_id VARCHAR(100))
 AS
-SELECT user_fname,user_lname FROM Users WHERE user_id IN (SELECT user_id2 FROM Friends WHERE user_id1=@user_id);
+SELECT user_f_name,user_l_name FROM Users WHERE user_id IN (SELECT user_id2 FROM Friends WHERE user_id1=@user_id);
 GO
 
 CREATE PROCEDURE UpdateUserProfilePicture (@user_id VARCHAR(100),@profile_photo IMAGE)
@@ -215,14 +215,14 @@ AS
 UPDATE Profiles SET profile_description=@profile_description WHERE user_id=@user_id;
 GO
 
-CREATE PROCEDURE UpdateUserFirstName (@user_id VARCHAR(100),@user_fname VARCHAR(100))
+CREATE PROCEDURE UpdateUserFirstName (@user_id VARCHAR(100),@user_f_name VARCHAR(100))
 AS
-UPDATE Users SET user_fname=@user_fname WHERE user_id=@user_id;
+UPDATE Users SET user_f_name=@user_f_name WHERE user_id=@user_id;
 GO
 
-CREATE PROCEDURE UpdateUserLastName (@user_id VARCHAR(100),@user_lname VARCHAR(100))
+CREATE PROCEDURE UpdateUserLastName (@user_id VARCHAR(100),@user_l_name VARCHAR(100))
 AS
-UPDATE Users SET user_lname=@user_lname WHERE user_id=@user_id;
+UPDATE Users SET user_l_name=@user_l_name WHERE user_id=@user_id;
 GO
 
 
