@@ -190,6 +190,11 @@ AS
 SELECT * FROM Posts WHERE user_id=@user_id;
 GO
 
+CREATE PROCEDURE GetUserComments (@user_id VARCHAR(100))
+AS
+SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments WHERE user_id=@user_id);
+GO
+
 CREATE PROCEDURE GetUserFriends (@user_id VARCHAR(100))
 AS
 SELECT * FROM Friends WHERE user_id=@user_id;
@@ -202,7 +207,12 @@ GO
 
 CREATE PROCEDURE GetUserFriendsNames (@user_id VARCHAR(100))
 AS
-SELECT user_f_name,user_l_name FROM Users WHERE user_id IN (SELECT user_id2 FROM Friends WHERE user_id1=@user_id);
+SELECT user_f_name,user_l_name FROM Users WHERE user_id IN (SELECT friend_id FROM Friends WHERE user_id1=@user_id);
+GO
+
+CREATE PROCEDURE GetAllUsers_Friends_posts 
+AS
+SELECT * FROM Users INNER JOIN Friends ON Users.user_id=Friends.user_id INNER JOIN Posts ON Friends.user_id=Posts.user_id;
 GO
 
 CREATE PROCEDURE UpdateUserProfilePicture (@user_id VARCHAR(100),@profile_photo IMAGE)
