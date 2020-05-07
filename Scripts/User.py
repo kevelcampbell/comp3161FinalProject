@@ -15,7 +15,7 @@ cnxn = mysql.connector.connect(host='localhost',
 print ("GENERATING THE USERS FOR THE DATABASE!!")
 cursor = cnxn.cursor()
 count = 0
-for i in range(700000):
+for i in range(20):
     user_id = count
     user_f_name = fake.first_name()
     user_l_name = fake.last_name()
