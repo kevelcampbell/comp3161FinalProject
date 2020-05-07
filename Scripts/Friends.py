@@ -17,7 +17,7 @@ print ("GENERATING THE FRIENDS FOR THE DATABASE!!")
 friend_type_lst=["Relative", "School", "Work"]
 cursor = cnxn.cursor()
 count = 0
-for i in range(700000):
+for i in range(20):
     user_id = count
     friend_id = count
     friend_type = friend_type_lst[random.randint(0,2)]
