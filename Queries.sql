@@ -10,7 +10,7 @@ CREATE TABLE Users(
     user_password VARCHAR(100),
     user_addr VARCHAR(100), 
     PRIMARY KEY(user_id)
-) ENGINE=InnoDB AUTO_INCREMENT=6200 DEFAULT CHARSET=utf8mb4;;
+) ENGINE=InnoDB AUTO_INCREMENT=6200 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `Emails`;
 CREATE TABLE Emails(
@@ -37,38 +37,38 @@ CREATE TABLE Profiles(
 
 DROP TABLE IF EXISTS `Photos`;
 CREATE TABLE Photos(
-    photo_id VARCHAR(100),
+    photo_id int(100) NOT NULL AUTO_INCREMENT,
     user_id int(100),
     photo_name VARCHAR(100),
     photo_image BLOB,
     photo_datetime DATETIME,
     PRIMARY KEY(photo_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
-);
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `Posts`;
 CREATE TABLE Posts(
-    post_id VARCHAR(100),
+    post_id int(100) NOT NULL AUTO_INCREMENT,
     user_id int(100),
     post_text text,
     post_datetime DATETIME,
     PRIMARY KEY (post_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
-);
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `Groups`;
 CREATE TABLE Groups(
-    group_id VARCHAR(100),
+    group_id int(100) NOT NULL AUTO_INCREMENT,
     user_id int(100),
     group_name VARCHAR(100),
     group_description text,
     PRIMARY KEY(group_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
-);
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `GroupMembers`;
 CREATE TABLE GroupMembers(
-    group_id VARCHAR(100),
+    group_id int(100),
     user_id int(100),
     member_status VARCHAR(100),
     PRIMARY KEY(group_id,user_id),
