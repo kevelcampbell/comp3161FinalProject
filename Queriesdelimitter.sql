@@ -69,14 +69,14 @@ CREATE TABLE Friends(
 CREATE TABLE GroupPosts(
     group_id VARCHAR(100),
     post_id VARCHAR(100),
-    PRIMARY KEY (group_id,post_id),
+    PRIMARY KEY (post_id),
     FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE, 
     FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE TABLE Comments(
     comment_id VARCHAR(100),
     post_id VARCHAR(100),
-    PRIMARY KEY (comment_id,post_id),
+    PRIMARY KEY (comment_id),
     FOREIGN KEY(comment_id) REFERENCES Posts(post_id)  ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
     );
