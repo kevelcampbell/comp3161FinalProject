@@ -99,7 +99,7 @@ DROP TABLE IF EXISTS `Comments`;
 CREATE TABLE Comments(
     comment_id VARCHAR(100),
     post_id VARCHAR(100),
-    PRIMARY KEY (comment_id,post_id),
+    PRIMARY KEY (comment_id),
     FOREIGN KEY(comment_id) REFERENCES Posts(post_id)  ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
