@@ -1,71 +1,92 @@
+CREATE DATABASE IF NOT EXISTS `mybook`;
+USE `mybook`;
+
+DROP TABLE IF EXISTS `Users`;
 CREATE TABLE Users(
-    user_id VARCHAR(100),
-    user_f_name VARCHAR(100),
-    user_l_name VARCHAR(100),
+    user_id int(100) NOT NULL AUTO_INCREMENT,
+    user_fname VARCHAR(100),
+    user_lname VARCHAR(100),
     user_dob DATE,
     user_password VARCHAR(100),
     user_addr VARCHAR(100), 
     PRIMARY KEY(user_id)
-);
+) ENGINE=InnoDB AUTO_INCREMENT=6200 DEFAULT CHARSET=utf8mb4;;
+
+DROP TABLE IF EXISTS `Emails`;
 CREATE TABLE Emails(
-    user_id VARCHAR(100),
+    user_id int(100),
     user_email VARCHAR(100),
     PRIMARY KEY(user_id,user_email)
 );
+
+DROP TABLE IF EXISTS `Telephones`;
 CREATE TABLE Telephones(
-    user_id VARCHAR(100),
+    user_id int(100),
     user_tel INT(50),
     PRIMARY KEY (user_id,user_tel)
 );
+
+DROP TABLE IF EXISTS `Profiles`;
 CREATE TABLE Profiles(
-    user_id VARCHAR(100),
+    user_id int(100),
     profile_description text,
     profile_photo BLOB,
     PRIMARY KEY(user_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+DROP TABLE IF EXISTS `Photos`;
 CREATE TABLE Photos(
     photo_id VARCHAR(100),
-    user_id VARCHAR(100),
+    user_id int(100),
     photo_name VARCHAR(100),
     photo_image BLOB,
     photo_datetime DATETIME,
     PRIMARY KEY(photo_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+DROP TABLE IF EXISTS `Posts`;
 CREATE TABLE Posts(
     post_id VARCHAR(100),
-    user_id VARCHAR(100),
+    user_id int(100),
     post_text text,
     post_datetime DATETIME,
     PRIMARY KEY (post_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+DROP TABLE IF EXISTS `Groups`;
 CREATE TABLE Groups(
     group_id VARCHAR(100),
-    user_id VARCHAR(100),
+    user_id int(100),
     group_name VARCHAR(100),
     group_description text,
     PRIMARY KEY(group_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+DROP TABLE IF EXISTS `GroupMembers`;
 CREATE TABLE GroupMembers(
     group_id VARCHAR(100),
-    user_id VARCHAR(100),
+    user_id int(100),
     member_status VARCHAR(100),
     PRIMARY KEY(group_id,user_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+DROP TABLE IF EXISTS `Friends`;
 CREATE TABLE Friends( 
-    user_id VARCHAR(100),
-    friend_id VARCHAR(100),
+    user_id int(100),
+    friend_id int(100),
     friend_type VARCHAR(100),
     PRIMARY KEY(user_id,friend_id),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(friend_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+DROP TABLE IF EXISTS `GroupPosts`;
 CREATE TABLE GroupPosts(
     group_id VARCHAR(100),
     post_id VARCHAR(100),
@@ -73,13 +94,17 @@ CREATE TABLE GroupPosts(
     FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE, 
     FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+DROP TABLE IF EXISTS `Comments`;
 CREATE TABLE Comments(
     comment_id VARCHAR(100),
     post_id VARCHAR(100),
     PRIMARY KEY (comment_id,post_id),
     FOREIGN KEY(comment_id) REFERENCES Posts(post_id)  ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
-    );
+);
+
+DROP TABLE IF EXISTS `Guests`;
 CREATE TABLE Guests(
     guest_id VARCHAR(100),
     guest_name VARCHAR(100),
@@ -92,24 +117,24 @@ CREATE TABLE Guests(
 
 
 GO
-CREATE PROCEDURE CreateUser (@user_id VARCHAR(100),@user_f_name VARCHAR(100), @user_l_name VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
+CREATE PROCEDURE CreateUser (@user_id int(100),@user_f_name VARCHAR(100), @user_l_name VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
 AS
 INSERT INTO Users VALUES(@user_id,@user_f_name,@user_l_name,@user_dob,@user_password,@user_addr);
 INSERT INTO Emails VALUES(@user_id,@user_email);
 INSERT INTO Telephones VALUES(@user_id,@user_tel);
 GO
 
-CREATE PROCEDURE CreateProfile (@user_id VARCHAR(100),@profile_description text,@profile_photo IMAGE)
+CREATE PROCEDURE CreateProfile (@user_id int(100),@profile_description text,@profile_photo IMAGE)
 AS
 INSERT INTO Profiles VALUES(@user_id,@profile_description,@profile_photo);
 GO
 
-CREATE PROCEDURE AddPhoto (@photo_id VARCHAR(100),@user_id VARCHAR(100),@photo_name VARCHAR(100),@photo_image IMAGE,@photo_datetime DATETIME)
+CREATE PROCEDURE AddPhoto (@photo_id VARCHAR(100),@user_id int(100),@photo_name VARCHAR(100),@photo_image IMAGE,@photo_datetime DATETIME)
 AS
 INSERT INTO Photos VALUES(@photo_id,@user_id,@photo_name,@photo_image,@photo_datetime);
 GO
 
-CREATE PROCEDURE AddPost (@post_id VARCHAR(100),@user_id VARCHAR(100),@post_text text,@post_datetime DATETIME)
+CREATE PROCEDURE AddPost (@post_id VARCHAR(100),@user_id int(100),@post_text text,@post_datetime DATETIME)
 AS
 INSERT INTO Posts VALUES(@post_id,@user_id,@post_text,@post_datetime);
 GO
@@ -119,12 +144,12 @@ AS
 INSERT INTO Comments VALUES(@comment_id,@post_id);
 GO
 
-CREATE PROCEDURE AddFriend (@user_id VARCHAR(100),@friend_id VARCHAR(100),@friend_type VARCHAR(100))
+CREATE PROCEDURE AddFriend (@user_id int(100),@friend_id int(100),@friend_type VARCHAR(100))
 AS
 INSERT INTO Friends VALUES(@user_id,@friend_id,@friend_type);
 GO
 
-CREATE PROCEDURE CreateGroup ( @group_id VARCHAR(100),@user_id VARCHAR(100),@group_name VARCHAR(100),@group_description text)
+CREATE PROCEDURE CreateGroup ( @group_id VARCHAR(100),@user_id int(100),@group_name VARCHAR(100),@group_description text)
 AS
 INSERT INTO Groups VALUES(@group_id,@user_id,@group_name,@group_description);
 GO
@@ -134,7 +159,7 @@ AS
 INSERT INTO GroupPosts VALUES(@group_id,@post_id);
 GO
 
-CREATE PROCEDURE AddGroupMembers ( @group_id VARCHAR(100),@user_id VARCHAR(100),@member_status VARCHAR(100))
+CREATE PROCEDURE AddGroupMembers ( @group_id VARCHAR(100),@user_id int(100),@member_status VARCHAR(100))
 AS
 INSERT INTO GroupMembers VALUES(@group_id,@user_id,@member_status);
 GO
@@ -200,7 +225,7 @@ AS
 SELECT * FROM Friends WHERE user_id=@user_id;
 GO
 
-CREATE PROCEDURE GetFriendsPosts (@user_id VARCHAR(100),@friend_id VARCHAR(100))
+CREATE PROCEDURE GetFriendsPosts (@user_id int(100),@friend_id int(100))
 AS
 SELECT * FROM Posts WHERE user_id IN  (SELECT friend_id FROM Friends WHERE user_id=@user_id AND friend_id=@friend_id);
 GO
@@ -215,22 +240,22 @@ AS
 SELECT * FROM Users INNER JOIN Friends ON Users.user_id=Friends.user_id INNER JOIN Posts ON Friends.user_id=Posts.user_id;
 GO
 
-CREATE PROCEDURE UpdateUserProfilePicture (@user_id VARCHAR(100),@profile_photo IMAGE)
+CREATE PROCEDURE UpdateUserProfilePicture (@user_id int(100),@profile_photo IMAGE)
 AS
 UPDATE Profiles SET profile_photo=@profile_photo WHERE user_id=@user_id;
 GO
 
-CREATE PROCEDURE UpdateUserProfileDescription (@user_id VARCHAR(100),@profile_description TEXT)
+CREATE PROCEDURE UpdateUserProfileDescription (@user_id int(100),@profile_description TEXT)
 AS
 UPDATE Profiles SET profile_description=@profile_description WHERE user_id=@user_id;
 GO
 
-CREATE PROCEDURE UpdateUserFirstName (@user_id VARCHAR(100),@user_f_name VARCHAR(100))
+CREATE PROCEDURE UpdateUserFirstName (@user_id int(100),@user_f_name VARCHAR(100))
 AS
 UPDATE Users SET user_f_name=@user_f_name WHERE user_id=@user_id;
 GO
 
-CREATE PROCEDURE UpdateUserLastName (@user_id VARCHAR(100),@user_l_name VARCHAR(100))
+CREATE PROCEDURE UpdateUserLastName (@user_id int(100),@user_l_name VARCHAR(100))
 AS
 UPDATE Users SET user_l_name=@user_l_name WHERE user_id=@user_id;
 GO
