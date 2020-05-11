@@ -16,14 +16,16 @@ DROP TABLE IF EXISTS `Emails`;
 CREATE TABLE Emails(
     user_id int(100),
     user_email VARCHAR(100),
-    PRIMARY KEY(user_id,user_email)
+    PRIMARY KEY(user_id,user_email),
+    FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS `Telephones`;
 CREATE TABLE Telephones(
     user_id int(100),
     user_tel INT(50),
-    PRIMARY KEY (user_id,user_tel)
+    PRIMARY KEY (user_id,user_tel),
+    FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS `Profiles`;
@@ -94,6 +96,23 @@ CREATE TABLE GroupPosts(
     FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE, 
     FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
+DROP TABLE IF EXISTS `GroupPhotos`;
+CREATE TABLE GroupPhotos(
+    group_id VARCHAR(100),
+    photo_id VARCHAR(100),
+    PRIMARY KEY (photo_id),
+    FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE, 
+    FOREIGN KEY(photo_id) REFERENCES Photos (photo_id)  ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS `PhotoComments`;
+CREATE TABLE PhotoComments(
+    comment_id VARCHAR(100),
+    photo_id VARCHAR(100),
+    PRIMARY KEY (comment_id),
+    FOREIGN KEY(comment_id) REFERENCES Posts(post_id)  ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(photo_id) REFERENCES Photos (photo_id)  ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 DROP TABLE IF EXISTS `Comments`;
 CREATE TABLE Comments(
@@ -115,7 +134,6 @@ CREATE TABLE Guests(
     PRIMARY KEY (guest_id)
 );
 
-
 GO
 CREATE PROCEDURE CreateUser (@user_id int(100),@user_f_name VARCHAR(100), @user_l_name VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
 AS
@@ -134,6 +152,11 @@ AS
 INSERT INTO Photos VALUES(@photo_id,@user_id,@photo_name,@photo_image,@photo_datetime);
 GO
 
+CREATE PROCEDURE AddGroupPhoto(@group_id VARCHAR(100),@photo_id VARCHAR(100))
+AS
+INSERT INTO GroupPhotos VALUES(@group_id,@photo_id);
+GO
+
 CREATE PROCEDURE AddPost (@post_id VARCHAR(100),@user_id int(100),@post_text text,@post_datetime DATETIME)
 AS
 INSERT INTO Posts VALUES(@post_id,@user_id,@post_text,@post_datetime);
@@ -142,6 +165,11 @@ GO
 CREATE PROCEDURE AddComment(@comment_id VARCHAR(100),@post_id VARCHAR(100))
 AS
 INSERT INTO Comments VALUES(@comment_id,@post_id);
+GO
+
+CREATE PROCEDURE AddPhotoComment(@comment_id VARCHAR(100),@photo_id VARCHAR(100))
+AS
+INSERT INTO PhotoComments VALUES(@comment_id,@photo_id);
 GO
 
 CREATE PROCEDURE AddFriend (@user_id int(100),@friend_id int(100),@friend_type VARCHAR(100))
@@ -169,6 +197,96 @@ AS
 INSERT INTO GroupMembers VALUES(@guest_id,@guest_name,@guest_email,@guest_addr,@guest_password,@guest_telephone);
 GO
 
+CREATE PROCEDURE GetJustPosts 
+AS
+SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments);
+GO
+
+CREATE PROCEDURE GetAllComments
+AS
+SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments);
+GO
+
+CREATE PROCEDURE GetAllGroupPosts 
+AS
+SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM GroupPosts);
+GO
+
+CREATE PROCEDURE GetAllGroupPhotos 
+AS
+SELECT * FROM Photos WHERE photo_id IN (SELECT photo_id FROM GroupPhotos);
+GO
+
+CREATE PROCEDURE GetAllUsers
+AS
+SELECT * FROM Users;
+GO
+
+CREATE PROCEDURE GetAllGuests
+AS
+SELECT * FROM Guests;
+GO
+
+
+CREATE PROCEDURE GetAllPhotos
+AS
+SELECT * FROM Photos;
+GO
+
+CREATE PROCEDURE GetAllGroups
+AS
+SELECT * FROM Groups;
+GO
+
+CREATE PROCEDURE GetAllEmails
+AS
+SELECT * FROM Emails;
+GO
+
+CREATE PROCEDURE GetAllTelephones
+AS
+SELECT * FROM Telephones;
+GO
+
+CREATE PROCEDURE GetPostComments (@post_id VARCHAR(100))
+AS
+SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments WHERE post_id=@post_id) ;
+GO
+
+CREATE PROCEDURE GetPhotoComments (@photo_id VARCHAR(100))
+AS
+SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM PhotoComments WHERE photo_id=@photo_id) ;
+GO
+
+CREATE PROCEDURE GetGroupCreator (@group_id VARCHAR(100))
+AS
+SELECT * FROM Users WHERE user_id IN (SELECT user_id FROM Groups WHERE group_id=@group_id) ;
+GO
+
+CREATE PROCEDURE GetGroupName (@group_id VARCHAR(100))
+AS
+SELECT group_name FROM Groups WHERE group_id=@group_id ;
+GO
+
+CREATE PROCEDURE GetGroupDescription (@group_id VARCHAR(100))
+AS
+SELECT group_description FROM Groups WHERE group_id=@group_id ;
+GO
+
+CREATE PROCEDURE GetGroupPosts (@group_id VARCHAR(100))
+AS
+SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM GroupPosts WHERE group_id=@group_id) ;
+GO
+
+CREATE PROCEDURE GetGroupPhotos (@group_id VARCHAR(100))
+AS
+SELECT * FROM Photos WHERE photo_id IN (SELECT photo_id FROM GroupPhotos WHERE group_id=@group_id) ;
+GO
+
+CREATE PROCEDURE GetGroupMembers (@group_id VARCHAR(100))
+AS
+SELECT * FROM Users WHERE user_id IN (SELECT user_id FROM GroupMembers WHERE group_id=@group_id) ;
+GO
 
 CREATE PROCEDURE GetUserFname (@user_id VARCHAR(100))
 AS
@@ -212,17 +330,22 @@ GO
 
 CREATE PROCEDURE GetUserPosts (@user_id VARCHAR(100))
 AS
-SELECT * FROM Posts WHERE user_id=@user_id;
+SELECT * FROM Posts WHERE user_id=@user_id AND NOT post_id IN (SELECT comment_id FROM Comments) ;
 GO
 
 CREATE PROCEDURE GetUserComments (@user_id VARCHAR(100))
 AS
-SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments WHERE user_id=@user_id);
+SELECT * FROM Posts WHERE user_id=@user_id AND post_id IN (SELECT comment_id FROM Comments) ;
 GO
 
 CREATE PROCEDURE GetUserFriends (@user_id VARCHAR(100))
 AS
-SELECT * FROM Friends WHERE user_id=@user_id;
+SELECT * FROM Users WHERE user_id IN (SELECT friend_id FROM Friends WHERE user_id=@user_id);
+GO
+
+CREATE PROCEDURE GetUserPhotos (@user_id VARCHAR(100))
+AS
+SELECT * FROM Photos WHERE user_id=@user_id;
 GO
 
 CREATE PROCEDURE GetFriendsPosts (@user_id int(100),@friend_id int(100))
