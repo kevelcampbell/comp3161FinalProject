@@ -356,14 +356,14 @@ END $$
 DELIMITER;
 
 DELIMITER $$
-CREATE PROCEDURE GetUser_F_name (@user_id VARCHAR(100))
+CREATE PROCEDURE GetUserFname (@user_id VARCHAR(100))
 BEGIN
 SELECT user_fname FROM Users WHERE user_id=@user_id
 END $$
 DELIMITER;
 
 DELIMITER $$
-CREATE PROCEDURE GetUser_L_name (@user_id VARCHAR(100))
+CREATE PROCEDURE GetUser_Lname (@user_id VARCHAR(100))
 BEGIN
 SELECT user_l_name FROM Users WHERE user_id=@user_id;
 END $$
