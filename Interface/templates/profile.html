@@ -54,33 +54,17 @@
         </ul>
       </div>
     </nav>
+    {% for r in posts %}
     <div class="card">
-      <div class="card-header">John Doe</div>
+      <div class="card-header">{{name[0]}} {{name[1]}}</div>
       <div class="card-body">
         <blockquote class="blockquote mb-0">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          <footer class="blockquote-footer"><cite title="Source Title">02/05/2020S</cite></footer>
+          <p>{{r[2]}}</p>
+          <footer class="blockquote-footer"><cite title="Source Title">{{r[3]}}</cite></footer>
         </blockquote>
       </div>
     </div>
-    <div class="card">
-      <div class="card-header">Jane Rowe</div>
-      <div class="card-body">
-        <blockquote class="blockquote mb-0">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          <footer class="blockquote-footer"><cite title="Source Title">02/05/2020S</cite></footer>
-        </blockquote>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">Tim Toe</div>
-      <div class="card-body">
-        <blockquote class="blockquote mb-0">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          <footer class="blockquote-footer"><cite title="Source Title">02/05/2020S</cite></footer>
-        </blockquote>
-      </div>
-    </div>
+    {% endfor %}
     <nav aria-label="Page navigation">
       <ul class="pagination">
         <li class="page-item">

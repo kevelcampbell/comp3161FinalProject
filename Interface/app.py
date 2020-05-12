@@ -31,7 +31,14 @@ def home():
 @app.route('/profile')
 @login_required
 def profile():
-  return render_template('profile.html')
+    cur = mysql.connection.cursor()
+    uid = session['uid']
+    cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"'")
+    posts = cur.fetchall()
+    cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
+    name = cur.fetchone()
+    cur.close()
+    return render_template('profile.html', posts=posts, name=name)
 
 @app.route('/friends')
 @login_required
@@ -55,6 +62,7 @@ def login():
     cur.close()
     if user:
       session['logged_in'] = True
+      session['uid'] = uid
       return redirect(url_for('home'))
     else:
       error = 'Please enter valid login credentials.'
