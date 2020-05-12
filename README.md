@@ -10,4 +10,4 @@ Delano Tracey: Queries
 
 Giselle Mclean: Database Connection
 
-Sania Spence: 	Database Connection                       620096421
+Sania Spence: 	Database Connection                     
