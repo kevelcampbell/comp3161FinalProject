@@ -223,7 +223,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetJustPosts 
 BEGIN
-SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments INNER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id);
+SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id);
 END $$
 DELIMITER;
 
