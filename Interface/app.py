@@ -26,7 +26,12 @@ def login_required(f):
 @app.route('/home')
 @login_required
 def home():
-  return render_template('home.html')
+  uid = session['uid']
+  cur = mysql.connection.cursor()
+  cur.execute("SELECT posts.*, users.user_fname, users.user_lname FROM posts INNER JOIN users ON posts.user_id=users.user_id INNER JOIN friends ON users.user_id=friends.friend_id WHERE friends.user_id='"+uid+"' ORDER BY post_datetime DESC")
+  posts = cur.fetchall()
+  cur.close()
+  return render_template('home.html', posts=posts)
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
