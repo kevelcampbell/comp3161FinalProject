@@ -56,83 +56,17 @@
     </nav>
     <br/><br/>
      <div class="row text-center">
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">John Doe</p>
+      {% for r in friends %}
+        <div class="col-4">
+          <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
+            <div class="card-body text-left">
+              <p class="card-text">{{r[2]}} {{r[3]}}</p>
+              <p class="card-text">Relationship: {{r[1]}}</p>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">Jane Done</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">Jill Doe</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row text-center">
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">John Doe</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">Jane Done</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">Jill Doe</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row text-center">
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">John Doe</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">Jane Done</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">Jill Doe</p>
-          </div>
-        </div>
-      </div>
-    </div>
+      {% endfor %}
   </div>
   <footer class="page-footer font-small blue">
     <div class="footer-copyright text-center py-3">© 2020 Copyright: MyBook.com </div>

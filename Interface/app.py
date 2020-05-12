@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, json
 from functools import wraps
 from flask_mysqldb import MySQL
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -10,7 +11,6 @@ app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'mybook'
 
 mysql = MySQL(app)
-
 app.secret_key = "secret"
 
 def login_required(f):
@@ -28,22 +28,49 @@ def login_required(f):
 def home():
   return render_template('home.html')
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    cur = mysql.connection.cursor()
-    uid = session['uid']
-    cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"'")
-    posts = cur.fetchall()
-    cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
-    name = cur.fetchone()
-    cur.close()
-    return render_template('profile.html', posts=posts, name=name)
+  postResult = None
+  uid = session['uid']
+  cur = mysql.connection.cursor()
+  cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+  posts = cur.fetchall()
+  cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
+  name = cur.fetchone()
+  cur.close()
+  if request.method == 'POST':
+    postDate = str(datetime.now())
+    if 'newPost' in request.form:
+      newPost = request.form['post']
+      cur = mysql.connection.cursor()
+      cur.execute("INSERT INTO posts (user_id, post_text, post_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+postDate+"')")
+      mysql.connection.commit()
+      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+      posts = cur.fetchall()
+      postResult = 'your post has been uploaded.'
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult)
+    if 'photoUpload' in request.form:
+      photo = request.form['photo']
+      newPost = request.form['photoPost']
+      cur = mysql.connection.cursor()
+      cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"', '"+postDate+"')")
+      mysql.connection.commit()
+      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+      posts = cur.fetchall()
+      postResult = 'your post has been uploaded.'
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult)
+  return render_template('profile.html', posts=posts, name=name)
 
 @app.route('/friends')
 @login_required
 def friends():
-  return render_template('friends.html')
+  uid = session['uid']
+  cur = mysql.connection.cursor()
+  cur.execute("SELECT friends.friend_id, friends.friend_type, users.user_fname, users.user_lname FROM friends INNER JOIN users ON friends.friend_id=users.user_id WHERE friends.user_id='"+uid+"'")
+  friends = cur.fetchall()
+  cur.close()
+  return render_template('friends.html', friends=friends)
 
 @app.route('/groups')
 @login_required
