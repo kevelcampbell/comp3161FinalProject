@@ -15,14 +15,13 @@ cnxn = mysql.connector.connect(host='localhost',
 print ("GENERATING THE USERS FOR THE DATABASE!!")
 cursor = cnxn.cursor()
 count = 0
-for i in range(20):
-    user_id = count
-    user_f_name = fake.first_name()
-    user_l_name = fake.last_name()
+for i in range(500000):
+    user_fname = fake.first_name()
+    user_lname = fake.last_name()
     user_dob = fake.date_of_birth()
     user_password = fake.password(length = 12)
     user_addr = fake.address()
-    cursor.execute("INSERT INTO Users VALUES (%s, %s, %s, %s, %s, %s)", (user_id, user_f_name, user_l_name, user_dob, user_password, user_addr))
+    cursor.execute("INSERT INTO Users VALUES (%s, %s, %s, %s, %s)", (user_fname, user_lname, user_dob, user_password, user_addr))
     cnxn.commit()
     count +=1
 print ("DONE CREATING USERS")
