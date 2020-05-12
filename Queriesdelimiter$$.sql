@@ -4,7 +4,7 @@ USE `mybook`;
 DROP TABLE IF EXISTS `Users`;
 CREATE TABLE Users(
     user_id int(100) NOT NULL AUTO_INCREMENT,
-    user_f_name VARCHAR(100),
+    user_fname VARCHAR(100),
     user_l_name VARCHAR(100),
     user_dob DATE,
     user_password VARCHAR(100),
@@ -19,7 +19,6 @@ CREATE TABLE Emails(
     PRIMARY KEY(user_id,user_email),
     FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
-
 DROP TABLE IF EXISTS `Telephones`;
 CREATE TABLE Telephones(
     user_id int(100),
@@ -135,9 +134,9 @@ CREATE TABLE Guests(
 );
 
 DELIMITER $$
-CREATE PROCEDURE CreateUser (@user_id int(100),@user_f_name VARCHAR(100), @user_l_name VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
+CREATE PROCEDURE CreateUser (@user_id int(100),@user_fname VARCHAR(100), @user_l_name VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
 BEGIN
-INSERT INTO Users VALUES(@user_id,@user_f_name,@user_l_name,@user_dob,@user_password,@user_addr);
+INSERT INTO Users VALUES(@user_id,@user_fname,@user_l_name,@user_dob,@user_password,@user_addr);
 INSERT INTO Emails VALUES(@user_id,@user_email);
 INSERT INTO Telephones VALUES(@user_id,@user_tel);
 END $$
@@ -223,7 +222,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetJustPosts 
 BEGIN
-SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments);
+SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments INNER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id);
 END $$
 DELIMITER;
 
@@ -233,6 +232,15 @@ BEGIN
 SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments);
 END $$
 DELIMITER;
+
+DELIMITER $$
+CREATE PROCEDURE GetAllPhotoComments
+BEGIN
+SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM PhotoComments);
+END $$
+DELIMITER;
+
+
 
 DELIMITER $$
 CREATE PROCEDURE GetAllGroupPosts 
@@ -350,7 +358,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetUser_F_name (@user_id VARCHAR(100))
 BEGIN
-SELECT user_f_name FROM Users WHERE user_id=@user_id
+SELECT user_fname FROM Users WHERE user_id=@user_id
 END $$
 DELIMITER;
 
@@ -441,7 +449,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetUserFriendsNames (@user_id VARCHAR(100))
 BEGIN
-SELECT user_f_name,user_l_name FROM Users WHERE user_id IN (SELECT friend_id FROM Friends WHERE user_id1=@user_id);
+SELECT user_fname,user_l_name FROM Users WHERE user_id IN (SELECT friend_id FROM Friends WHERE user_id1=@user_id);
 END $$
 DELIMITER;
 
@@ -467,9 +475,9 @@ END $$
 DELIMITER;
 
 DELIMITER $$
-CREATE PROCEDURE UpdateUserFirstName (@user_id int(100),@user_f_name VARCHAR(100))
+CREATE PROCEDURE UpdateUserFirstName (@user_id int(100),@user_fname VARCHAR(100))
 BEGIN
-UPDATE Users SET user_f_name=@user_f_name WHERE user_id=@user_id;
+UPDATE Users SET user_fname=@user_fname WHERE user_id=@user_id;
 END $$
 DELIMITER;
 
