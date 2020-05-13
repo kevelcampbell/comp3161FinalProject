@@ -54,6 +54,14 @@
             <a class="nav-link" href="/view_groups">Groups</a>
           </li>
         </ul>
+        {% if uid != groups.user_id %}
+        <span class="navbar-text">
+          <form method="post" action="/view_groups">
+          <input hidden type="text" name="groupID" value="" class="form-control"/>
+            <button type="button">Create Group</button>
+          </form>
+        </span>
+        {% endif %}
       </div>
     </nav>
     <br/><br/>
