@@ -200,6 +200,17 @@ def view_groups():
     groups = cur.fetchall()
     cur.close()
     return render_template('viewGroups.html', groups=groups, uid=uid)
+  if 'groupID' in request.form:
+      groupID = request.form['groupID']
+      uid = request.form['uid']
+      gname = request.form['gname']
+      gdes = request.form['gdes']
+      cur = mysql.connection.cursor()
+      cur.execute("INSERT INTO groups (group_id, user_id, group_name, group_description) VALUES ('"+groupID+"', '"+uid+"', '"+gname+"', '"+gdes+"')")
+      mysql.connection.commit()
+      cur.close()
+      postResult = 'You just made a new group!'
+      return render_template('profile.html', groups=groups, postResult=postResult, uid=uid)
   return render_template('viewGroups.html', groups=groups, uid=uid)
 
 @app.route('/', methods=['GET', 'POST'])
