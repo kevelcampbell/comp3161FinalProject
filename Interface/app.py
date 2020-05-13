@@ -26,7 +26,12 @@ def login_required(f):
 @app.route('/home')
 @login_required
 def home():
-  return render_template('home.html')
+  uid = session['uid']
+  cur = mysql.connection.cursor()
+  cur.execute("SELECT posts.*, users.user_fname, users.user_lname FROM posts INNER JOIN users ON posts.user_id=users.user_id INNER JOIN friends ON users.user_id=friends.friend_id WHERE friends.user_id='"+uid+"' ORDER BY post_datetime DESC")
+  posts = cur.fetchall()
+  cur.close()
+  return render_template('home.html', posts=posts)
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -41,6 +46,15 @@ def profile():
   cur.close()
   if request.method == 'POST':
     postDate = str(datetime.now())
+    if 'search' in request.form:
+      findUser = request.form['search']
+      cur = mysql.connection.cursor()
+      cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
+      posts = cur.fetchall()
+      cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+findUser+"'")
+      name = cur.fetchone()
+      cur.close()
+      return render_template('profile.html', posts=posts, name=name, uid=uid)
     if 'newPost' in request.form:
       newPost = request.form['post']
       cur = mysql.connection.cursor()
@@ -70,11 +84,30 @@ def friends():
   cur.execute("SELECT friends.friend_id, friends.friend_type, users.user_fname, users.user_lname FROM friends INNER JOIN users ON friends.friend_id=users.user_id WHERE friends.user_id='"+uid+"'")
   friends = cur.fetchall()
   cur.close()
+  if 'search' in request.form:
+    findUser = request.form['search']
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
+    posts = cur.fetchall()
+    cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+findUser+"'")
+    name = cur.fetchone()
+    cur.close()
+    return render_template('profile.html', posts=posts, name=name, uid=uid)
   return render_template('friends.html', friends=friends)
 
 @app.route('/groups')
 @login_required
 def groups():
+  uid = session['uid']
+  if 'search' in request.form:
+    findUser = request.form['search']
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
+    posts = cur.fetchall()
+    cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+findUser+"'")
+    name = cur.fetchone()
+    cur.close()
+    return render_template('profile.html', posts=posts, name=name, uid=uid)
   return render_template('groups.html')
 
 @app.route('/', methods=['GET', 'POST'])
