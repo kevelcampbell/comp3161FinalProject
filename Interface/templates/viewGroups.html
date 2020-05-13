@@ -57,16 +57,20 @@
       </div>
     </nav>
     <br/><br/>
-    <div class="row text-center">
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">John Doe</p>
+      <div class="row text-center">
+        {% for r in groups %}
+          <div class="col-4">
+            <div class="card" style="width: 18rem;">
+              <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
+              <div class="card-body">
+                <p class="card-text">{{r[2]}}</p>
+                <p class="card-text">{{r[3]}}</p>
+              </div>
+            </div>
           </div>
-        </div>
+        {% endfor %}
       </div>
-    </div>
+  </div>
   <footer class="page-footer font-small blue">
     <div class="footer-copyright text-center py-3">© 2020 Copyright: MyBook.com </div>
   </footer>
