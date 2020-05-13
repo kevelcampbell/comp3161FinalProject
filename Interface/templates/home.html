@@ -90,12 +90,13 @@
         </div>
       </div>
     </div>
+    {% for r in posts %}
     <div class="card">
-      <div class="card-header">John Doe</div>
+      <div class="card-header">{{r[4]}} {{r[5]}}</div>
       <div class="card-body">
         <blockquote class="blockquote mb-0">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          <footer class="blockquote-footer"><cite title="Source Title">02/05/2020S</cite></footer>
+          <p>{{r[2]}}</p>
+          <footer class="blockquote-footer"><cite title="Source Title">{{r[3]}}</cite></footer>
           <br/>
           <span class="comment" data-toggle="modal" data-target="#commentModal">View comments</span>
           <form id="comment" action="" method="post">
@@ -124,55 +125,7 @@
         </div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-header">John Doe</div>
-      <div class="card-body">
-        <blockquote class="blockquote mb-0">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          <footer class="blockquote-footer"><cite title="Source Title">02/05/2020S</cite></footer>
-          <br/>
-          <span class="comment" data-toggle="modal" data-target="#commentModal">View comments</span>
-          <form id="comment" action="" method="post">
-              <div class="form-group">
-                  <input type="text" class="form-control" placeholder="add a comment" name="comment" value="{{request.form.comment}}"/>
-              </div>
-          </form>
-        </blockquote>
-      </div>
-      <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="all comments" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Comments</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              ...
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">John Doe</div>
-      <div class="card-body">
-        <blockquote class="blockquote mb-0">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
-          <footer class="blockquote-footer"><cite title="Source Title">02/05/2020S</cite></footer>
-          <br/>
-          <span class="comment" data-toggle="modal" data-target="#commentModal">View comments</span>
-          <form id="comment" action="" method="post">
-              <div class="form-group">
-                  <input type="text" class="form-control" placeholder="add a comment" name="comment" value="{{request.form.comment}}"/>
-              </div>
-          </form>
-        </blockquote>
-      </div>
+    {% endfor %}
       <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="all comments" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
