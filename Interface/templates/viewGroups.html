@@ -60,12 +60,12 @@
       <div class="row text-center">
         {% for r in groups %}
           <div class="col-4">
-            <div class="card" style="width: 18rem;">
+            <div class="card text-left" style="width: 18rem;">
               <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
               <div class="card-body">
-                <p class="card-text">{{r[0]}}</p>
-                <p class="card-text">{{r[2]}}</p>
-                <p class="card-text">{{r[3]}}</p>
+                <p class="card-text">Group ID: {{r[0]}}</p>
+                <p class="card-text">Group Name: {{r[2]}}</p>
+                <p class="card-text">Group Description: {{r[3]}}</p>
               </div>
             </div>
           </div>
