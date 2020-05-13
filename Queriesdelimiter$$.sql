@@ -415,7 +415,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetUserPosts (@user_id INT(100))
 BEGIN
-SELECT * FROM Posts WHERE user_id=@user_id AND NOT post_id IN (SELECT comment_id FROM Comments);
+SELECT * FROM Posts WHERE user_id=@user_id AND NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id);
 END $$
 DELIMITER;
 
