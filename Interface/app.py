@@ -23,15 +23,46 @@ def login_required(f):
       return redirect(url_for('login'))
   return wrap
 
-@app.route('/home')
+@app.route('/home', methods=['GET', 'POST'])
 @login_required
 def home():
   uid = session['uid']
+  postDate = str(datetime.now())
   cur = mysql.connection.cursor()
-  cur.execute("SELECT posts.*, users.user_fname, users.user_lname FROM posts INNER JOIN users ON posts.user_id=users.user_id INNER JOIN friends ON users.user_id=friends.friend_id WHERE friends.user_id='"+uid+"' ORDER BY post_datetime DESC")
+  cur.execute("SELECT posts.*, users.user_fname, users.user_lname FROM posts INNER JOIN users ON posts.user_id=users.user_id INNER JOIN friends ON users.user_id=friends.friend_id WHERE friends.user_id='"+uid+"' OR users.user_id='"+uid+"' ORDER BY post_datetime DESC")
   posts = cur.fetchall()
+  cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
+  name = cur.fetchone()
   cur.close()
-  return render_template('home.html', posts=posts)
+  if 'search' in request.form:
+    findUser = request.form['search']
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
+    posts = cur.fetchall()
+    cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+findUser+"'")
+    name = cur.fetchone()
+    cur.close()
+    return render_template('profile.html', posts=posts, name=name, uid=uid)
+  if 'newPost' in request.form:
+    newPost = request.form['post']
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO posts (user_id, post_text, post_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+postDate+"')")
+    mysql.connection.commit()
+    cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+    posts = cur.fetchall()
+    postResult = 'your post has been uploaded.'
+    return render_template('profile.html', posts=posts, name=name, postResult=postResult)
+  if 'photoUpload' in request.form:
+    photo = request.form['photo']
+    newPost = request.form['photoPost']
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"', '"+postDate+"')")
+    mysql.connection.commit()
+    cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+    posts = cur.fetchall()
+    postResult = 'your post has been uploaded.'
+    return render_template('profile.html', posts=posts, name=name, postResult=postResult)
+  return render_template('home.html', posts=posts, name=name)
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
