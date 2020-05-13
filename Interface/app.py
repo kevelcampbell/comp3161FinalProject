@@ -82,10 +82,19 @@ def profile():
       cur = mysql.connection.cursor()
       cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
       posts = cur.fetchall()
-      cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+findUser+"'")
+      cur.execute("SELECT user_fname, user_lname, user_id FROM users WHERE user_id='"+findUser+"'")
       name = cur.fetchone()
       cur.close()
       return render_template('profile.html', posts=posts, name=name, uid=uid)
+    if 'friendType' in request.form:
+      friendType = request.form['friendType']
+      friendID = request.form['friendID']
+      cur = mysql.connection.cursor()
+      cur.execute("INSERT INTO friends (user_id, friend_id, friend_type) VALUES ('"+uid+"', '"+friendID+"', '"+friendType+"')")
+      mysql.connection.commit()
+      cur.close()
+      postResult = 'You just made a new friend!'
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, uid=uid)
     if 'newPost' in request.form:
       newPost = request.form['post']
       cur = mysql.connection.cursor()
@@ -100,6 +109,48 @@ def profile():
       newPost = request.form['photoPost']
       cur = mysql.connection.cursor()
       cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"', '"+postDate+"')")
+      mysql.connection.commit()
+      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+      posts = cur.fetchall()
+      postResult = 'your post has been uploaded.'
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult)
+  return render_template('profile.html', posts=posts, name=name)
+
+@app.route('/group', methods=['GET', 'POST'])
+@login_required
+def groups():
+  postResult = None
+  uid = session['uid']
+  cur = mysql.connection.cursor()
+  cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+  posts = cur.fetchall()
+  cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
+  name = cur.fetchone()
+  cur.close()
+  if request.method == 'POST':
+    postDate = str(datetime.now())
+    if 'search' in request.form:
+      findUser = request.form['search']
+      cur = mysql.connection.cursor()
+      cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
+      posts = cur.fetchall()
+      cur.execute("SELECT user_fname, user_lname, user_id FROM users WHERE user_id='"+findUser+"'")
+      name = cur.fetchone()
+      cur.close()
+      return render_template('profile.html', posts=posts, name=name, uid=uid)
+    if 'friendType' in request.form:
+      friendType = request.form['friendType']
+      friendID = request.form['friendID']
+      cur = mysql.connection.cursor()
+      cur.execute("INSERT INTO friends (user_id, friend_id, friend_type) VALUES ('"+uid+"', '"+friendID+"', '"+friendType+"')")
+      mysql.connection.commit()
+      cur.close()
+      postResult = 'You just made a new friend!'
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, uid=uid)
+    if 'newPost' in request.form:
+      newPost = request.form['post']
+      cur = mysql.connection.cursor()
+      cur.execute("INSERT INTO posts (user_id, post_text, post_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+postDate+"')")
       mysql.connection.commit()
       cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
       posts = cur.fetchall()
@@ -126,9 +177,9 @@ def friends():
     return render_template('profile.html', posts=posts, name=name, uid=uid)
   return render_template('friends.html', friends=friends)
 
-@app.route('/groups')
+@app.route('/view_groups')
 @login_required
-def groups():
+def view_groups():
   uid = session['uid']
   if 'search' in request.form:
     findUser = request.form['search']
@@ -139,7 +190,7 @@ def groups():
     name = cur.fetchone()
     cur.close()
     return render_template('profile.html', posts=posts, name=name, uid=uid)
-  return render_template('groups.html')
+  return render_template('viewGroups.html')
 
 @app.route('/', methods=['GET', 'POST'])
 def login():

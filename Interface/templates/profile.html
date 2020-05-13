@@ -25,7 +25,7 @@
           <a class="nav-link" href="/profile">Profile</a>
         </li>
         <li class="nav-item">
-          <form method="post">
+          <form method="post" action="/profile">
             <input class="form-control mr-sm-2" type="text" placeholder="Search By ID" aria-label="Search" name="search">
           </form>
         </li>
@@ -51,9 +51,22 @@
             <a class="nav-link" href="/friends">Friends<span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/groups">Groups</a>
+            <a class="nav-link" href="/view_groups">Groups</a>
           </li>
         </ul>
+        {% if uid != posts.user_id %}
+        <span class="navbar-text">
+          <form method="post" action="/profile">
+            <input hidden type="text" name="friendID" value={{name[2]}} class="form-control"/>
+            <select required name="friendType" onchange="this.form.submit()" type="submit" class="btn btn-success">
+              <option value="" disabled selected>Add Friend</option>
+              <option value="Relative">Relative</option>
+              <option value="School">School</option>
+              <option value="Work">Work</option>
+            </select>
+          </form>
+        </span>
+        {% endif %}
       </div>
     </nav>
     <div class="card">
@@ -116,10 +129,10 @@
     </div>
     {% if postResult%}
       <div class="container bottom alert alert-success alert-dismissible" role="alert">
-          {{postResult}}
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        {{postResult}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
     {% endif %}
     {% for r in posts %}
