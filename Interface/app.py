@@ -120,6 +120,7 @@ def profile():
 @login_required
 def groups():
   uid = session['uid']
+  error = None
   postResult = None
   if request.method == 'POST':
     postDate = str(datetime.now())
@@ -128,10 +129,10 @@ def groups():
       cur = mysql.connection.cursor()
       cur.execute("SELECT * FROM groups WHERE group_id='"+findGroup+"'")
       description = cur.fetchone()
-      print(description)
       cur.execute("SELECT * FROM groupmembers WHERE group_id='"+findGroup+"'")
       members = cur.fetchall()
-      cur.execute("SELECT group_post, group_name, post_date FROM groups INNER JOIN groupposts ON groups.group_id=groupposts.group_id WHERE groups.group_id='"+findGroup+"' ORDER BY groupposts.post_date DESC")
+      print(members)
+      cur.execute("SELECT group_post, group_name, post_datetime FROM groups INNER JOIN groupposts ON groups.group_id=groupposts.group_id WHERE groups.group_id='"+findGroup+"' ORDER BY groupposts.post_datetime DESC")
       posts = cur.fetchall()
       cur.close()
       return render_template('groups.html', posts=posts, description=description, uid=uid, members=members)
@@ -139,27 +140,38 @@ def groups():
       status = request.form['status']
       groupID = request.form['groupID']
       cur = mysql.connection.cursor()
+      cur.execute("SELECT * FROM groupmembers WHERE group_id='"+groupID+"'")
+      members = cur.fetchall()
+      if [item for item in members if groupID in item]:
+        error = 'You are already a member'
+        cur.execute("SELECT * FROM groups WHERE group_id='"+groupID+"'")
+        description = cur.fetchone()
+        cur.execute("SELECT group_post, group_name, post_datetime FROM groups INNER JOIN groupposts ON groups.group_id=groupposts.group_id WHERE groups.group_id='"+groupID+"' ORDER BY groupposts.post_datetime DESC")
+        posts = cur.fetchall()
+        return render_template('groups.html', error=error, posts=posts, postResult=postResult, description=description, uid=uid, members=members)
       cur.execute("INSERT INTO groupmembers (group_id, user_id, member_status) VALUES ('"+groupID+"', '"+uid+"', '"+status+"')")
       mysql.connection.commit()
-      cur.execute("SELECT * FROM groups WHERE group_id='"+findGroup+"'")
+      cur.execute("SELECT * FROM groups WHERE group_id='"+groupID+"'")
       description = cur.fetchone()
-      print(description)
-      cur.execute("SELECT * FROM groupmembers WHERE group_id='"+findGroup+"'")
-      members = cur.fetchall()
-      cur.execute("SELECT group_post, group_name, post_date FROM groups INNER JOIN groupposts ON groups.group_id=groupposts.group_id WHERE groups.group_id='"+findGroup+"' ORDER BY groupposts.post_date DESC")
+      cur.execute("SELECT group_post, group_name, post_datetime FROM groups INNER JOIN groupposts ON groups.group_id=groupposts.group_id WHERE groups.group_id='"+groupID+"' ORDER BY groupposts.post_datetime DESC")
       posts = cur.fetchall()
       cur.close()
       postResult = 'You are now a member'
-      return render_template('group.html', posts=posts, postResult=postResult, description=description, uid=uid, members=members)
+      return render_template('groups.html', posts=posts, postResult=postResult, description=description, uid=uid, members=members)
     if 'newPost' in request.form:
       newPost = request.form['post']
+      groupID = request.form['groupID']
       cur = mysql.connection.cursor()
-      cur.execute("INSERT INTO groupposts (group_id, group_post, post_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+postDate+"')")
+      cur.execute("INSERT INTO groupposts (group_id, group_post, post_datetime) VALUES ('"+groupID+"', '"+newPost+"', '"+postDate+"')")
       mysql.connection.commit()
-      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+      cur.execute("SELECT * FROM groupposts WHERE ORDER BY post_datetime DESC")
       posts = cur.fetchall()
+      cur.execute("SELECT * FROM groups WHERE group_id='"+findGroup+"'")
+      description = cur.fetchone()
       postResult = 'your post has been uploaded.'
-      return render_template('profile.html', posts=posts, postResult=postResult)
+      cur.execute("SELECT * FROM groupmembers WHERE group_id='"+groupID+"'")
+      members = cur.fetchall()
+      return render_template('groups.html', posts=posts, postResult=postResult, description=description, uid=uid, members=members)
   cur = mysql.connection.cursor()
   cur.execute("SELECT posts.*, users.user_fname, users.user_lname FROM posts INNER JOIN users ON posts.user_id=users.user_id INNER JOIN friends ON users.user_id=friends.friend_id WHERE friends.user_id='"+uid+"' OR users.user_id='"+uid+"' ORDER BY post_datetime DESC")
   posts = cur.fetchall()
@@ -200,17 +212,6 @@ def view_groups():
     groups = cur.fetchall()
     cur.close()
     return render_template('viewGroups.html', groups=groups, uid=uid)
-  if 'groupID' in request.form:
-      groupID = request.form['groupID']
-      uid = request.form['uid']
-      gname = request.form['gname']
-      gdes = request.form['gdes']
-      cur = mysql.connection.cursor()
-      cur.execute("INSERT INTO groups (group_id, user_id, group_name, group_description) VALUES ('"+groupID+"', '"+uid+"', '"+gname+"', '"+gdes+"')")
-      mysql.connection.commit()
-      cur.close()
-      postResult = 'You just made a new group!'
-      return render_template('profile.html', groups=groups, postResult=postResult, uid=uid)
   return render_template('viewGroups.html', groups=groups, uid=uid)
 
 @app.route('/', methods=['GET', 'POST'])

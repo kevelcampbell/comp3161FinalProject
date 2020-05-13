@@ -91,11 +91,13 @@ CREATE TABLE Friends(
 DROP TABLE IF EXISTS `GroupPosts`;
 CREATE TABLE GroupPosts(
     group_id int(100),
-    post_id int(100),
+    post_id int(100) NOT NULL AUTO_INCREMENT,
+    group_post VARCHAR(100),
+    post_datetime DATETIME,
     PRIMARY KEY (post_id),
-    FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE, 
-    FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
-);
+    FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4;
+
 DROP TABLE IF EXISTS `GroupPhotos`;
 CREATE TABLE GroupPhotos(
     group_id int(100),

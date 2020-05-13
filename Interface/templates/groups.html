@@ -56,7 +56,6 @@
             <a class="nav-link" href="/groupMember">Friends<span class="sr-only">(current)</span></a>
           </li>
         </ul>
-        {% if uid != members.user_id %}
         <span class="navbar-text">
           <form method="post">
             <input hidden type="text" name="groupID" value={{description[0]}} class="form-control"/>
@@ -64,7 +63,6 @@
             <button type="submit" class="btn btn-success" name="addMember">Join Group</button>
           </form>
         </span>
-        {% endif %}
       </div>
     </nav>
     <div class="card">
@@ -93,6 +91,7 @@
             <form method="post">
               <div class="modal-body">
                 <textarea type="text" name="post" class="form-control" placeholder="Create a post, be free!"></textarea>
+                <input hidden type="text" name="groupID" value={{description[0]}} class="form-control"/>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -128,6 +127,14 @@
     {% if postResult%}
     <div class="container bottom alert alert-success alert-dismissible" role="alert">
       {{postResult}}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endif %}
+    {% if error%}
+    <div class="container bottom alert alert-danger alert-dismissible" role="alert">
+      {{error}}
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
