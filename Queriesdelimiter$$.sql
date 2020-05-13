@@ -223,7 +223,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetJustPosts 
 BEGIN
-SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id);
+SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id FULL OUTER JOIN GroupPosts ON PhotoComments.comment_id=GroupPosts.post_id);
 END $$
 DELIMITER;
 
@@ -415,7 +415,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetUserPosts (@user_id INT(100))
 BEGIN
-SELECT * FROM Posts WHERE user_id=@user_id AND NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id);
+SELECT * FROM Posts WHERE user_id=@user_id AND NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id FULL OUTER JOIN GroupPosts ON PhotoComments.comment_id=GroupPosts.post_id);
 END $$
 DELIMITER;
 
@@ -423,6 +423,13 @@ DELIMITER $$
 CREATE PROCEDURE GetUserComments (@user_id INT(100))
 BEGIN
 SELECT * FROM Posts WHERE user_id=@user_id AND post_id IN (SELECT comment_id FROM Comments);
+END $$
+DELIMITER;
+
+DELIMITER $$
+CREATE PROCEDURE GetUserPhotoComments (@user_id INT(100))
+BEGIN
+SELECT * FROM Posts WHERE user_id=@user_id AND post_id IN (SELECT comment_id FROM PhotoComments);
 END $$
 DELIMITER;
 
@@ -436,14 +443,14 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetUserPhotos (@user_id INT(100))
 BEGIN
-SELECT * FROM Photos WHERE user_id=@user_id;
+SELECT * FROM Photos WHERE user_id=@user_id AND  NOT photo_id IN (SELECT photo_id FROM GroupPhotos);
 END $$
 DELIMITER;
 
 DELIMITER $$
-CREATE PROCEDURE GetFriendsPosts (@user_id INT(100),@friend_id INT(100))
+CREATE PROCEDURE GetFriendsPosts (@user_id INT(100))
 BEGIN
-SELECT * FROM Posts WHERE user_id IN  (SELECT friend_id FROM Friends WHERE user_id=@user_id AND friend_id=@friend_id);
+SELECT * FROM Posts WHERE user_id IN  (SELECT friend_id FROM Friends WHERE user_id=@user_id) AND NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id FULL OUTER JOIN GroupPosts ON PhotoComments.comment_id=GroupPosts.post_id);
 END $$
 DELIMITER;
 
