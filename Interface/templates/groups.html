@@ -26,7 +26,12 @@
         </li>
         <li class="nav-item">
           <form method="post" action="/profile">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search By ID" aria-label="Search" name="search">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search By User ID" aria-label="Search" name="search">
+          </form>
+        </li>
+        <li class="nav-item">
+          <form method="post" action="/group">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search By Group ID" aria-label="Search" name="search">
           </form>
         </li>
       </ul>
@@ -45,43 +50,101 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link" href="/profile">Posts<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="/group">Posts<span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/friends">Friends<span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="/view_groups">Groups</a>
+            <a class="nav-link" href="/groupMember">Friends<span class="sr-only">(current)</span></a>
           </li>
         </ul>
+        {% if uid != members.user_id %}
+        <span class="navbar-text">
+          <form method="post">
+            <input hidden type="text" name="groupID" value={{description[0]}} class="form-control"/>
+            <input hidden type="text" name="status" value="Member" class="form-control"/>
+            <button type="submit" class="btn btn-success" name="addMember">Join Group</button>
+          </form>
+        </span>
+        {% endif %}
       </div>
     </nav>
-    <div class="row text-center">
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">John Doe</p>
+    <div class="card">
+      <div class="card-header">{{description[2]}}</div>
+      {% if uid != posts.user_id %}
+        <div class="card-body">
+          <div class="row">
+            <div class="col">
+              <input class="comment form-control" data-toggle="modal" data-target="#postmodal" placeholder="Create a post"/>
+            </div>
+            <div class="col">
+              <input class="comment form-control" data-toggle="modal" data-target="#postphoto" placeholder="Add a Photo"/>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      <div class="modal fade" id="postmodal" tabindex="-1" role="dialog" aria-labelledby="make a post" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Create Post</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form method="post">
+              <div class="modal-body">
+                <textarea type="text" name="post" class="form-control" placeholder="Create a post, be free!"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" name="newPost">Post</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">Jane Done</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-4">
-        <div class="card" style="width: 18rem;">
-          <img class="card-img-top" src="../static/images/friends.jpg" alt="Card image cap">
-          <div class="card-body">
-            <p class="card-text">Jill Doe</p>
+      <div class="modal fade" id="postphoto" tabindex="-1" role="dialog" aria-labelledby="add a photo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Create Post</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form method="post">
+              <div class="modal-body">
+                  <input type="file" accept="image/*" class="form-control" name="photo" placeholder="Create a post, be free!"/>
+                  <input type="text" name="photoPost" class="form-control" placeholder="add text."/>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" name="photoUpload">Post</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
     </div>
+    {% if postResult%}
+    <div class="container bottom alert alert-success alert-dismissible" role="alert">
+      {{postResult}}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endif %}
+    {% for r in posts %}
+    <div class="card">
+      <div class="card-header">{{description[3]}}</div>
+      <div class="card-body">
+        <blockquote class="blockquote mb-0">
+          <p>{{r[2]}}</p>
+          <footer class="blockquote-footer"><cite title="Source Title">{{r[3]}}</cite></footer>
+        </blockquote>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
   <footer class="page-footer font-small blue">
     <div class="footer-copyright text-center py-3">© 2020 Copyright: MyBook.com </div>
   </footer>
