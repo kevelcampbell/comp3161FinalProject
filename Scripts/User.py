@@ -9,19 +9,20 @@ import hashlib
 
 fake = Factory.create('en_US')
 cnxn = mysql.connector.connect(host='localhost',
-                             database='comp3161finalproject',
+                             database='mybook',
                              user='root',
                              password='')
 print ("GENERATING THE USERS FOR THE DATABASE!!")
 cursor = cnxn.cursor()
-count = 0
-for i in range(500000):
+count = 6204
+for i in range(7):
+    user_id = count
     user_fname = fake.first_name()
     user_lname = fake.last_name()
     user_dob = fake.date_of_birth()
-    user_password = fake.password(length = 12)
+    user_password = fake.password(length = 4)
     user_addr = fake.address()
-    cursor.execute("INSERT INTO Users VALUES (%s, %s, %s, %s, %s)", (user_fname, user_lname, user_dob, user_password, user_addr))
+    cursor.execute("INSERT INTO Users VALUES (%s, %s, %s, %s, %s, %s)", (user_id, user_fname, user_lname, user_dob, user_password, user_addr))
     cnxn.commit()
     count +=1
 print ("DONE CREATING USERS")

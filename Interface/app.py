@@ -208,10 +208,22 @@ def view_groups():
   if 'search' in request.form:
     findUser = request.form['search']
     cur = mysql.connection.cursor()
-    cur.execute("SELECT groups.group_id, groups.user_id, groups.group_name, groups.group_description FROM groups INNER JOIN users ON groups.user_id=users.user_id WHERE groups.user_id='"+findUser+"'")
+    cur.execute("SELECT groups.group_id, groups.user_id, groups.group_name, groups.group_description FROM groups INNER JOIN users ON groups.user_id=users.user_id WHERE groups.group_id='"+findUser+"'")
     groups = cur.fetchall()
     cur.close()
     return render_template('viewGroups.html', groups=groups, uid=uid)
+  if 'createGroup' in request.form:
+      gid = request.form['createGroup']
+      groupName = request.form['createGroup']
+      gid = request.form['createGroup']
+      groupDescription = request.form['groupDescription']
+      cur = mysql.connection.cursor()
+      cur.execute("INSERT INTO groups (group_id, user_id, group_name, group_description) VALUES ('"+gid+"', '"+uid+"', '"+groupName+"', '"+groupDescription+"')")
+      mysql.connection.commit()
+      cur.execute("SELECT * FROM groups WHERE user_id='"+uid+"' ORDER BY group_id")
+      posts = cur.fetchall()
+      postResult = 'You group has been created'
+      return render_template('viewGroups.html', groups=groups, uid=uid)
   return render_template('viewGroups.html', groups=groups, uid=uid)
 
 @app.route('/', methods=['GET', 'POST'])
