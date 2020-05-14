@@ -206,9 +206,9 @@ def view_groups():
   groups = cur.fetchall()
   cur.close()
   if 'search' in request.form:
-    findUser = request.form['search']
+    gid = request.form['search']
     cur = mysql.connection.cursor()
-    cur.execute("SELECT groups.group_id, groups.user_id, groups.group_name, groups.group_description FROM groups INNER JOIN users ON groups.user_id=users.user_id WHERE groups.group_id='"+findUser+"'")
+    cur.execute("SELECT groups.group_id, groups.user_id, groups.group_name, groups.group_description FROM groups INNER JOIN users ON groups.user_id=users.user_id WHERE groups.user_id='"+gid+"'")
     groups = cur.fetchall()
     cur.close()
     return render_template('viewGroups.html', groups=groups, uid=uid)
