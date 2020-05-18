@@ -107,6 +107,16 @@ CREATE TABLE GroupPhotos(
     FOREIGN KEY(photo_id) REFERENCES Photos (photo_id)  ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+DROP TABLE IF EXISTS `GroupAdmin`;
+CREATE TABLE GroupAdmin(
+    group_id int(100),
+    user_id int(100),
+    PRIMARY KEY(group_id, user_id),
+    FOREIGN KEY(user_id) REFERENCES Users (user_id)  ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY(group_id) REFERENCES Groups (group_id)  ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
 DROP TABLE IF EXISTS `PhotoComments`;
 CREATE TABLE PhotoComments(
     comment_id int(100),
