@@ -197,7 +197,7 @@ def friends():
     return render_template('friends.html', friends=friends, uid=uid)
   return render_template('friends.html', friends=friends)
 
-@app.route('/view_groups')
+@app.route('/view_groups', methods=['GET', 'POST'])
 @login_required
 def view_groups():
   uid = session['uid']
@@ -213,17 +213,15 @@ def view_groups():
     cur.close()
     return render_template('viewGroups.html', groups=groups, uid=uid)
   if 'createGroup' in request.form:
-      gid = request.form['createGroup']
-      groupName = request.form['createGroup']
-      gid = request.form['createGroup']
-      groupDescription = request.form['groupDescription']
-      cur = mysql.connection.cursor()
-      cur.execute("INSERT INTO groups (group_id, user_id, group_name, group_description) VALUES ('"+gid+"', '"+uid+"', '"+groupName+"', '"+groupDescription+"')")
-      mysql.connection.commit()
-      cur.execute("SELECT * FROM groups WHERE user_id='"+uid+"' ORDER BY group_id")
-      posts = cur.fetchall()
-      postResult = 'You group has been created'
-      return render_template('viewGroups.html', groups=groups, uid=uid)
+    title = request.form['title']
+    description = request.form['description']
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO groups (user_id, group_name, group_description) VALUES ('"+uid+"', '"+title+"', '"+description+"')")
+    mysql.connection.commit()
+    cur.execute("SELECT * FROM groups WHERE user_id='"+uid+"' ORDER BY group_id")
+    groups = cur.fetchall()
+    postResult = 'You group has been created'
+    return render_template('viewGroups.html', groups=groups, uid=uid, postResult=postResult)
   return render_template('viewGroups.html', groups=groups, uid=uid)
 
 @app.route('/', methods=['GET', 'POST'])

@@ -70,10 +70,10 @@
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
-                  <form method="group">
+                  <form method="post">
                     <div class="modal-body">
-                      <textarea type="text" name="post" class="form-control" placeholder="Name your group here"></textarea>
-                      <textarea type="text" name="post" class="form-control" placeholder="Describe your group here"></textarea>
+                      <input type="text" name="title" class="form-control" placeholder="Name your group here">
+                      <textarea type="text" name="description" class="form-control" placeholder="Describe your group here"></textarea>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -83,12 +83,20 @@
                 </div>
               </div>
             </div>
-            <button type="submit" class="btn btn-success" name="createGroup" data-toggle="modal" data-target="#creategroup">Create Group</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#creategroup">Create Group</button>
         </span>
         {% endif %}
       </div>
     </nav>
     <br/><br/>
+    {% if postResult%}
+      <div class="container bottom alert alert-success alert-dismissible" role="alert">
+        {{postResult}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    {% endif %}
       <div class="row text-center">
         {% for r in groups %}
           <div class="col-4">
