@@ -317,19 +317,33 @@ def signup():
 @login_required
 def adminReport(page):
   uid = session['uid']
-  perpage=15
-  if page == 1:
-    startat=1*perpage
-  startat=page*perpage
-  print(page)
   cur = mysql.connection.cursor()
-  cur.execute("SELECT user_id, user_fname, user_lname FROM users limit %s, %s", (startat,perpage))
-  members = cur.fetchall()
-  cur.execute("SELECT * FROM friends ")
-  friends = cur.fetchall()
-  cur.execute("SELECT * FROM posts ORDER BY post_datetime DESC")
+  cur.execute("SELECT user_id FROM admins")
+  admin = cur.fetchall()
+  admins = [x[0] for x in admin]
+  for i in admins:
+    if(str(i) == uid):
+      perpage=15
+      if page == 1:
+        startat=1*perpage
+      startat=page*perpage
+      print(page)
+      cur = mysql.connection.cursor()
+      cur.execute("SELECT user_id, user_fname, user_lname FROM users limit %s, %s", (startat,perpage))
+      members = cur.fetchall()
+      cur.execute("SELECT * FROM friends ")
+      friends = cur.fetchall()
+      cur.execute("SELECT * FROM posts ORDER BY post_datetime DESC")
+      posts = cur.fetchall()
+      return render_template('admin.html', friends=friends, members=members, posts=posts, uid=uid, page=page)
+  cur = mysql.connection.cursor()
+  cur.execute("SELECT posts.*, users.user_fname, users.user_lname FROM posts INNER JOIN users ON posts.user_id=users.user_id INNER JOIN friends ON users.user_id=friends.friend_id WHERE friends.user_id='"+uid+"' OR users.user_id='"+uid+"' ORDER BY post_datetime DESC")
   posts = cur.fetchall()
-  return render_template('admin.html', friends=friends, members=members, posts=posts, uid=uid, page=page)
+  cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
+  name = cur.fetchone()
+  cur.close()
+  error = "you are not an admin"
+  return render_template('home.html', posts=posts, name=name, error=error)
 
 if __name__ == '__main__':
   app.run(debug=True)
