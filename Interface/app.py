@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from functools import wraps
 from flask_mysqldb import MySQL
 from datetime import datetime
+from base64 import b64encode
 
 app = Flask(__name__)
 
@@ -75,8 +76,8 @@ def profile():
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
   cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
-  photo = cur.fetchall()
-  print(photo)
+  obj = cur.fetchone()[0]
+  photo = b64encode(obj).decode("utf-8")
   cur.close()
   if request.method == 'POST':
     postDate = str(datetime.now())
@@ -86,7 +87,10 @@ def profile():
       cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
       posts = cur.fetchall()
       cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+findUser+"'")
-      photo = cur.fetchone()
+      obj = cur.fetchone()
+      if obj:
+        photo = b64encode(obj).decode("utf-8")
+      photo = None
       cur.execute("SELECT user_fname, user_lname, user_id FROM users WHERE user_id='"+findUser+"'")
       name = cur.fetchone()
       cur.close()
@@ -110,18 +114,17 @@ def profile():
       postResult = 'your post has been uploaded.'
       return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
     if 'profilePhoto' in request.form:
-      photo = request.form['photo']
+      photo = request.files['photo']
+      newPhoto = photo.read()
       newPost = request.form['photoPost']
       cur = mysql.connection.cursor()
-      cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"', '"+postDate+"')")
+      cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', %s, '"+postDate+"')", [newPhoto])
       mysql.connection.commit()
       cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
-      photo = cur.fetchone()
+      obj = cur.fetchone()[0]
+      photo = b64encode(obj).decode("utf-8")
       if photo:
-        uid = str(uid)
-        photot = str(photo)
-        newPost = str(newPost)
-        cur.execute("UPDATE profiles SET profile_description=%s, profile_photo=%s WHERE user_id=%s", (newPost, photot, uid))
+        cur.execute("UPDATE profiles SET profile_description=%s, profile_photo=%s WHERE user_id=%s", (newPost, newPhoto, uid))
         mysql.connection.commit()
         cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
         posts = cur.fetchall()
@@ -131,17 +134,21 @@ def profile():
       mysql.connection.commit()
       cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
       posts = cur.fetchall()
-      postResult = 'your post has been uploaded.'
+      postResult = 'your profile photo has been uploaded.'
       return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
     if 'photoUpload' in request.form:
-      photo = request.form['photo']
+      photoNew = request.form['photo']
+      newPhoto = photoNew.read()
       newPost = request.form['photoPost']
       cur = mysql.connection.cursor()
-      cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"', '"+postDate+"')")
+      cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+newPhoto+"', '"+postDate+"')")
       mysql.connection.commit()
       cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
       posts = cur.fetchall()
       postResult = 'your post has been uploaded.'
+      cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
+      obj = cur.fetchone()[0]
+      photo = b64encode(obj).decode("utf-8")
       return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
   return render_template('profile.html', posts=posts, name=name, photo=photo)
 
