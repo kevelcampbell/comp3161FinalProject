@@ -244,12 +244,20 @@ def view_groups():
   if 'createGroup' in request.form:
     title = request.form['title']
     description = request.form['description']
+    status = "admin"
     cur = mysql.connection.cursor()
     cur.execute("INSERT INTO groups (user_id, group_name, group_description) VALUES ('"+uid+"', '"+title+"', '"+description+"')")
     mysql.connection.commit()
+    cur.execute("SELECT MAX(group_id) FROM groups")
+    groupID = cur.fetchone()
+    groupIDs = str(int(groupID[0]))
+    cur.execute("INSERT INTO groupmembers (group_id, user_id, member_status) VALUES ('"+groupIDs+"', '"+uid+"', '"+status+"')")
+    mysql.connection.commit()
+    cur.execute("INSERT INTO groupadmin (group_id, user_id) VALUES ('"+groupIDs+"', '"+uid+"')")
+    mysql.connection.commit()
     cur.execute("SELECT * FROM groups WHERE user_id='"+uid+"' ORDER BY group_id")
     groups = cur.fetchall()
-    postResult = 'Your group has been created'
+    postResult = ('Your group has been created, your new group ID is: ' + groupIDs)
     return render_template('viewGroups.html', groups=groups, uid=uid, postResult=postResult)
   return render_template('viewGroups.html', groups=groups, uid=uid)
 
