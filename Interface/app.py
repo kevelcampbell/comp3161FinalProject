@@ -74,6 +74,9 @@ def profile():
   posts = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
+  cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
+  photo = cur.fetchall()
+  print(photo)
   cur.close()
   if request.method == 'POST':
     postDate = str(datetime.now())
@@ -82,10 +85,12 @@ def profile():
       cur = mysql.connection.cursor()
       cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
       posts = cur.fetchall()
+      cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+findUser+"'")
+      photo = cur.fetchone()
       cur.execute("SELECT user_fname, user_lname, user_id FROM users WHERE user_id='"+findUser+"'")
       name = cur.fetchone()
       cur.close()
-      return render_template('profile.html', posts=posts, name=name, uid=uid)
+      return render_template('profile.html', posts=posts, name=name, uid=uid, photo=photo)
     if 'friendType' in request.form:
       friendType = request.form['friendType']
       friendID = request.form['friendID']
@@ -94,7 +99,7 @@ def profile():
       mysql.connection.commit()
       cur.close()
       postResult = 'You just made a new friend!'
-      return render_template('profile.html', posts=posts, name=name, postResult=postResult, uid=uid)
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, uid=uid, photo=photo)
     if 'newPost' in request.form:
       newPost = request.form['post']
       cur = mysql.connection.cursor()
@@ -103,7 +108,31 @@ def profile():
       cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
       posts = cur.fetchall()
       postResult = 'your post has been uploaded.'
-      return render_template('profile.html', posts=posts, name=name, postResult=postResult)
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
+    if 'profilePhoto' in request.form:
+      photo = request.form['photo']
+      newPost = request.form['photoPost']
+      cur = mysql.connection.cursor()
+      cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"', '"+postDate+"')")
+      mysql.connection.commit()
+      cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
+      photo = cur.fetchone()
+      if photo:
+        uid = str(uid)
+        photot = str(photo)
+        newPost = str(newPost)
+        cur.execute("UPDATE profiles SET profile_description=%s, profile_photo=%s WHERE user_id=%s", (newPost, photot, uid))
+        mysql.connection.commit()
+        cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+        posts = cur.fetchall()
+        postResult = 'your post has been uploaded.'
+        return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
+      cur.execute("INSERT INTO profiles (user_id, profile_description, profile_photo) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"')")
+      mysql.connection.commit()
+      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+      posts = cur.fetchall()
+      postResult = 'your post has been uploaded.'
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
     if 'photoUpload' in request.form:
       photo = request.form['photo']
       newPost = request.form['photoPost']
@@ -113,8 +142,8 @@ def profile():
       cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
       posts = cur.fetchall()
       postResult = 'your post has been uploaded.'
-      return render_template('profile.html', posts=posts, name=name, postResult=postResult)
-  return render_template('profile.html', posts=posts, name=name)
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
+  return render_template('profile.html', posts=posts, name=name, photo=photo)
 
 @app.route('/group', methods=['GET', 'POST'])
 @login_required
