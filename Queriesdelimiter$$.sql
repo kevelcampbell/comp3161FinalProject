@@ -223,7 +223,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetJustPosts 
 BEGIN
-SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id FULL OUTER JOIN GroupPosts ON PhotoComments.comment_id=GroupPosts.post_id);
+SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ;
 END $$
 DELIMITER;
 
@@ -415,7 +415,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetUserPosts (@user_id INT(100))
 BEGIN
-SELECT * FROM Posts WHERE user_id=@user_id AND NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id FULL OUTER JOIN GroupPosts ON PhotoComments.comment_id=GroupPosts.post_id);
+SELECT * FROM Posts WHERE user_id=@user_id AND NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ;
 END $$
 DELIMITER;
 
@@ -450,7 +450,7 @@ DELIMITER;
 DELIMITER $$
 CREATE PROCEDURE GetFriendsPosts (@user_id INT(100))
 BEGIN
-SELECT * FROM Posts WHERE user_id IN  (SELECT friend_id FROM Friends WHERE user_id=@user_id) AND NOT post_id IN (SELECT comment_id FROM Comments FULL OUTER JOIN PhotoComments ON Comments.comment_id=PhotoComments.comment_id FULL OUTER JOIN GroupPosts ON PhotoComments.comment_id=GroupPosts.post_id);
+SELECT * FROM Posts WHERE user_id IN  (SELECT friend_id FROM Friends WHERE user_id=@user_id) AND NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ;;
 END $$
 DELIMITER;
 
