@@ -146,6 +146,12 @@ CREATE TABLE Guests(
     PRIMARY KEY (guest_id)
 );
 
+DROP TABLE IF EXISTS `Admin`;
+CREATE TABLE Admin(
+    user_id int(100),
+    PRIMARY KEY(user_id)
+);
+
 GO
 CREATE PROCEDURE CreateUser (@user_id int(100),@user_f_name VARCHAR(100), @user_l_name VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
 AS
