@@ -260,7 +260,6 @@ def signup():
         telephone = request.form['user_tel']
         address = request.form['user_addr']
         cur = mysql.connection.cursor()
-        # cur.execute("INSERT INTO users (user_fname, user_lname, user_dob, user_password, user_addr) VALUES WHERE user_id='"+uid+"' AND user_password ='"+password+"' ")
         cur.execute("INSERT INTO users (user_fname, user_lname, user_dob, user_password, user_addr) VALUES (%s, %s, %s, %s, %s)", (firstName, lastName, dob, password, address))
         mysql.connection.commit()
         cur.execute("SELECT MAX(user_id) FROM users")
@@ -275,6 +274,25 @@ def signup():
       response = 'Please review sign up details'
       return render_template('signup.html', response=response)
     return render_template('signup.html')
+
+@app.route('/adminReport', methods=['GET', 'POST'], defaults={'page':1})
+@app.route('/adminReport/page/<int:page>')
+@login_required
+def adminReport(page):
+  uid = session['uid']
+  perpage=15
+  if page == 1:
+    startat=1*perpage
+  startat=page*perpage
+  print(page)
+  cur = mysql.connection.cursor()
+  cur.execute("SELECT user_id, user_fname, user_lname FROM users limit %s, %s", (startat,perpage))
+  members = cur.fetchall()
+  cur.execute("SELECT * FROM friends ")
+  friends = cur.fetchall()
+  cur.execute("SELECT * FROM posts ORDER BY post_datetime DESC")
+  posts = cur.fetchall()
+  return render_template('admin.html', friends=friends, members=members, posts=posts, uid=uid, page=page)
 
 if __name__ == '__main__':
   app.run(debug=True)
