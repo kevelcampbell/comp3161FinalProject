@@ -318,7 +318,7 @@ def signup():
 def adminReport(page):
   uid = session['uid']
   cur = mysql.connection.cursor()
-  cur.execute("SELECT user_id FROM admins")
+  cur.execute("SELECT user_id FROM admin")
   admin = cur.fetchall()
   admins = [x[0] for x in admin]
   for i in admins:
