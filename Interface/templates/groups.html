@@ -63,6 +63,31 @@
             <button type="submit" class="btn btn-success" name="addMember">Join Group</button>
           </form>
         </span>
+        <span class="navbar-text pl-2">
+            <div class="modal fade" id="newAdmin" tabindex="-1" role="dialog" aria-labelledby="add an admin" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Add Group Admin</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <form method="post">
+                    <div class="modal-body">
+                      <input type="text" name="userID" class="form-control" placeholder="Wrtie the new admin's ID here">
+                      <input hidden type="text" name="groupID" value={{description[0]}} class="form-control"/>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary" name="newAdmin">Add</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#newAdmin">Add Group Admin</button>
+        </span>
       </div>
     </nav>
     <div class="card">
