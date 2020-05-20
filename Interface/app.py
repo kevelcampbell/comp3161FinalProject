@@ -24,35 +24,42 @@ def login_required(f):
       return redirect(url_for('login'))
   return wrap
 
-@app.route('/home', methods=['GET', 'POST'])
+@app.route('/home', methods=['GET', 'POST'], defaults={'page':1})
+@app.route('/home/page/<int:page>')
 @login_required
-def home():
+def home(page):
   uid = session['uid']
   postDate = str(datetime.now())
+  perpage=10
+  if page == 1:
+    startat=1*perpage
+  startat=page*perpage
   cur = mysql.connection.cursor()
-  cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
+  cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
   posts = cur.fetchall()
+  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments)")
+  allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
   cur.close()
   if 'search' in request.form:
     findUser = request.form['search']
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
+    cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
     posts = cur.fetchall()
     cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+findUser+"'")
     name = cur.fetchone()
     cur.close()
-    return render_template('profile.html', posts=posts, name=name, uid=uid)
+    return render_template('profile.html', posts=posts, name=name, uid=uid, allComments=allComments, page=page)
   if 'newPost' in request.form:
     newPost = request.form['post']
     cur = mysql.connection.cursor()
     cur.execute("INSERT INTO posts (user_id, post_text, post_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+postDate+"')")
     mysql.connection.commit()
-    cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+    cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
     posts = cur.fetchall()
     postResult = 'your post has been uploaded.'
-    return render_template('home.html', posts=posts, name=name, postResult=postResult)
+    return render_template('home.html', posts=posts, name=name, postResult=postResult, allComments=allComments, page=page)
   if 'newComment' in request.form:
     newComment = request.form['comment']
     postID = request.form['postID']
@@ -61,33 +68,41 @@ def home():
     mysql.connection.commit()
     cur.execute("INSERT INTO comments (post_id) VALUES ('"+postID+"')")
     mysql.connection.commit()
-    cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
+    cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
     posts = cur.fetchall()
     postResult = 'your post has been uploaded.'
-    return render_template('home.html', posts=posts, name=name, postResult=postResult)
+    return render_template('home.html', posts=posts, name=name, postResult=postResult, allComments=allComments, page=page)
   if 'photoUpload' in request.form:
     photo = request.form['photo']
     newPost = request.form['photoPost']
     cur = mysql.connection.cursor()
     cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"', '"+postDate+"')")
     mysql.connection.commit()
-    cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+    cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
     posts = cur.fetchall()
     postResult = 'your post has been uploaded.'
-    return render_template('profile.html', posts=posts, name=name, postResult=postResult)
-  return render_template('home.html', posts=posts, name=name)
+    return render_template('profile.html', posts=posts, name=name, postResult=postResult, allComments=allComments, page=page)
+  return render_template('home.html', posts=posts, name=name, allComments=allComments, page=page)
 
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile', methods=['GET', 'POST'], defaults={'page':1})
+@app.route('/profile/page/<int:page>')
 @login_required
-def profile():
+def profile(page):
   postResult = None
   photo = None
+  postDate = str(datetime.now())
+  perpage=10
+  if page == 1:
+    startat=1*perpage
+  startat=page*perpage
   uid = session['uid']
   cur = mysql.connection.cursor()
-  cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+  cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
   posts = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
+  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments)")
+  allComments = cur.fetchall()
   cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
   result = cur.fetchone()
   if result:
@@ -99,7 +114,7 @@ def profile():
     if 'search' in request.form:
       findUser = request.form['search']
       cur = mysql.connection.cursor()
-      cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
+      cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
       posts = cur.fetchall()
       cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+findUser+"'")
       result = cur.fetchone()
@@ -109,7 +124,7 @@ def profile():
       cur.execute("SELECT user_fname, user_lname, user_id FROM users WHERE user_id='"+findUser+"'")
       name = cur.fetchone()
       cur.close()
-      return render_template('profile.html', posts=posts, name=name, uid=uid, photo=photo)
+      return render_template('profile.html', posts=posts, name=name, uid=uid, photo=photo, allComments=allComments, page=page)
     if 'friendType' in request.form:
       friendType = request.form['friendType']
       friendID = request.form['friendID']
@@ -118,16 +133,16 @@ def profile():
       mysql.connection.commit()
       cur.close()
       postResult = 'You just made a new friend!'
-      return render_template('profile.html', posts=posts, name=name, postResult=postResult, uid=uid, photo=photo)
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, uid=uid, photo=photo, allComments=allComments, page=page)
     if 'newPost' in request.form:
       newPost = request.form['post']
       cur = mysql.connection.cursor()
       cur.execute("INSERT INTO posts (user_id, post_text, post_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+postDate+"')")
       mysql.connection.commit()
-      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
       posts = cur.fetchall()
       postResult = 'your post has been uploaded.'
-      return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo, allComments=allComments, page=page)
     if 'profilePhoto' in request.form:
       photo = request.files['photo']
       newPhoto = photo.read()
@@ -145,16 +160,16 @@ def profile():
       if photo:
         cur.execute("UPDATE profiles SET profile_description=%s, profile_photo=%s WHERE user_id=%s", (newPost, newPhoto, uid))
         mysql.connection.commit()
-        cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+        cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
         posts = cur.fetchall()
         postResult = 'your post has been uploaded.'
-        return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
+        return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo, allComments=allComments, page=page)
       cur.execute("INSERT INTO profiles (user_id, profile_description, profile_photo) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"')")
       mysql.connection.commit()
-      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
       posts = cur.fetchall()
       postResult = 'your profile photo has been uploaded.'
-      return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo, allComments=allComments, page=page)
     if 'photoUpload' in request.form:
       photoNew = request.form['photo']
       newPhoto = photoNew.read()
@@ -162,7 +177,7 @@ def profile():
       cur = mysql.connection.cursor()
       cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', '"+newPhoto+"', '"+postDate+"')")
       mysql.connection.commit()
-      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
+      cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
       posts = cur.fetchall()
       postResult = 'your post has been uploaded.'
       cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
@@ -170,8 +185,8 @@ def profile():
       if result:
         obj = result[0]
       photo = b64encode(obj).decode("utf-8")
-      return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
-  return render_template('profile.html', posts=posts, name=name, photo=photo)
+      return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo, allComments=allComments, page=page)
+  return render_template('profile.html', posts=posts, name=name, photo=photo, allComments=allComments, page=page)
 
 @app.route('/group', methods=['GET', 'POST'])
 @login_required
@@ -259,12 +274,13 @@ def groups():
       postResult = ('You successfully added '+userID+' as an admin')
       return render_template('groups.html', groups=groups, uid=uid, postResult=postResult, posts=posts, description=description)
   cur = mysql.connection.cursor()
-  cur.execute("SELECT posts.*, users.user_fname, users.user_lname FROM posts INNER JOIN users ON posts.user_id=users.user_id INNER JOIN friends ON users.user_id=friends.friend_id WHERE friends.user_id='"+uid+"' OR users.user_id='"+uid+"' ORDER BY post_datetime DESC")
+  cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
   posts = cur.fetchall()
+  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments)")
+  allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
-  cur.close()
-  return render_template('home.html', posts=posts, name=name)
+  return render_template('home.html', posts=posts, name=name, page=page, allComments=allComments)
 
 @app.route('/friends', methods=['GET', 'POST'])
 @login_required
@@ -384,7 +400,6 @@ def adminReport(page):
       if page == 1:
         startat=1*perpage
       startat=page*perpage
-      print(page)
       cur = mysql.connection.cursor()
       cur.execute("SELECT user_id, user_fname, user_lname FROM users limit %s, %s", (startat,perpage))
       members = cur.fetchall()
@@ -394,13 +409,15 @@ def adminReport(page):
       posts = cur.fetchall()
       return render_template('admin.html', friends=friends, members=members, posts=posts, uid=uid, page=page)
   cur = mysql.connection.cursor()
-  cur.execute("SELECT posts.*, users.user_fname, users.user_lname FROM posts INNER JOIN users ON posts.user_id=users.user_id INNER JOIN friends ON users.user_id=friends.friend_id WHERE friends.user_id='"+uid+"' OR users.user_id='"+uid+"' ORDER BY post_datetime DESC")
+  cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
   posts = cur.fetchall()
+  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments)")
+  allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
   cur.close()
   error = "you are not an admin"
-  return render_template('home.html', posts=posts, name=name, error=error)
+  return render_template('home.html', posts=posts, name=name, error=error, page=page, allComments=allComments)
 
 if __name__ == '__main__':
   app.run(debug=True)
