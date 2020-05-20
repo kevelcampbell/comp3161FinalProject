@@ -128,12 +128,10 @@ CREATE TABLE PhotoComments(
 
 DROP TABLE IF EXISTS `Comments`;
 CREATE TABLE Comments(
-    comment_id int(100),
+    comment_id int(100) NOT NULL AUTO_INCREMENT,
     post_id int(100),
-    PRIMARY KEY (comment_id),
-    FOREIGN KEY(comment_id) REFERENCES Posts(post_id)  ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY(post_id) REFERENCES Posts (post_id)  ON DELETE CASCADE ON UPDATE CASCADE
-);
+    PRIMARY KEY (comment_id)
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `Guests`;
 CREATE TABLE Guests(

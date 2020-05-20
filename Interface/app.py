@@ -30,7 +30,7 @@ def home():
   uid = session['uid']
   postDate = str(datetime.now())
   cur = mysql.connection.cursor()
-  cur.execute("SELECT posts.*, users.user_fname, users.user_lname FROM posts INNER JOIN users ON posts.user_id=users.user_id INNER JOIN friends ON users.user_id=friends.friend_id WHERE friends.user_id='"+uid+"' OR users.user_id='"+uid+"' ORDER BY post_datetime DESC")
+  cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
   posts = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
@@ -52,7 +52,19 @@ def home():
     cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
     posts = cur.fetchall()
     postResult = 'your post has been uploaded.'
-    return render_template('profile.html', posts=posts, name=name, postResult=postResult)
+    return render_template('home.html', posts=posts, name=name, postResult=postResult)
+  if 'newComment' in request.form:
+    newComment = request.form['comment']
+    postID = request.form['postID']
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO posts (user_id, post_text, post_datetime) VALUES ('"+uid+"', '"+newComment+"', '"+postDate+"')")
+    mysql.connection.commit()
+    cur.execute("INSERT INTO comments (post_id) VALUES ('"+postID+"')")
+    mysql.connection.commit()
+    cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
+    posts = cur.fetchall()
+    postResult = 'your post has been uploaded.'
+    return render_template('home.html', posts=posts, name=name, postResult=postResult)
   if 'photoUpload' in request.form:
     photo = request.form['photo']
     newPost = request.form['photoPost']
@@ -69,6 +81,7 @@ def home():
 @login_required
 def profile():
   postResult = None
+  photo = None
   uid = session['uid']
   cur = mysql.connection.cursor()
   cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC")
@@ -76,8 +89,10 @@ def profile():
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
   cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
-  obj = cur.fetchone()[0]
-  photo = b64encode(obj).decode("utf-8")
+  result = cur.fetchone()
+  if result:
+    obj = result[0]
+    photo = b64encode(obj).decode("utf-8")
   cur.close()
   if request.method == 'POST':
     postDate = str(datetime.now())
@@ -87,10 +102,10 @@ def profile():
       cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC")
       posts = cur.fetchall()
       cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+findUser+"'")
-      obj = cur.fetchone()
-      if obj:
+      result = cur.fetchone()
+      if result:
+        obj = result[0]
         photo = b64encode(obj).decode("utf-8")
-      photo = None
       cur.execute("SELECT user_fname, user_lname, user_id FROM users WHERE user_id='"+findUser+"'")
       name = cur.fetchone()
       cur.close()
@@ -120,9 +135,13 @@ def profile():
       cur = mysql.connection.cursor()
       cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', %s, '"+postDate+"')", [newPhoto])
       mysql.connection.commit()
+      cur.execute("INSERT INTO profiles (user_id, profile_description, profile_photo) VALUES ('"+uid+"', '"+newPost+"', %s)", [newPhoto])
+      mysql.connection.commit()
       cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
-      obj = cur.fetchone()[0]
-      photo = b64encode(obj).decode("utf-8")
+      result = cur.fetchone()
+      if result:
+        obj = result[0]
+        photo = b64encode(obj).decode("utf-8")
       if photo:
         cur.execute("UPDATE profiles SET profile_description=%s, profile_photo=%s WHERE user_id=%s", (newPost, newPhoto, uid))
         mysql.connection.commit()
@@ -147,7 +166,9 @@ def profile():
       posts = cur.fetchall()
       postResult = 'your post has been uploaded.'
       cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
-      obj = cur.fetchone()[0]
+      result = cur.fetchone()
+      if result:
+        obj = result[0]
       photo = b64encode(obj).decode("utf-8")
       return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo)
   return render_template('profile.html', posts=posts, name=name, photo=photo)
