@@ -150,256 +150,365 @@ CREATE TABLE Admin(
     PRIMARY KEY(user_id)
 );
 
-GO
-CREATE PROCEDURE CreateUser (@user_id int(100),@user_f_name VARCHAR(100), @user_l_name VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
-AS
-INSERT INTO Users VALUES(@user_id,@user_f_name,@user_l_name,@user_dob,@user_password,@user_addr);
+
+DELIMITER //
+CREATE PROCEDURE CreateUser ( @user_id INT(100),@user_fname VARCHAR(100), @user_l_name VARCHAR(100),@user_email VARCHAR(100),@user_dob DATE,@user_tel INT(50),@user_addr VARCHAR(100), @user_password VARCHAR(100))
+BEGIN
+INSERT INTO Users VALUES(@user_id,@user_fname,@user_l_name,@user_dob,@user_password,@user_addr);
 INSERT INTO Emails VALUES(@user_id,@user_email);
 INSERT INTO Telephones VALUES(@user_id,@user_tel);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE CreateProfile (@user_id int(100),@profile_description text,@profile_photo IMAGE)
-AS
+DELIMITER //
+CREATE PROCEDURE CreateProfile (@user_id INT(100),@profile_description text,@profile_photo BLOB)
+BEGIN
 INSERT INTO Profiles VALUES(@user_id,@profile_description,@profile_photo);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE AddPhoto (@ photo_id int(100),@user_id int(100),@photo_name VARCHAR(100),@photo_image IMAGE,@photo_datetime DATETIME)
-AS
+DELIMITER //
+CREATE PROCEDURE AddPhoto (@photo_id INT(100),@user_id INT(100),@photo_name VARCHAR(100),@photo_image BLOB,@photo_datetime DATETIME)
+BEGIN
 INSERT INTO Photos VALUES(@photo_id,@user_id,@photo_name,@photo_image,@photo_datetime);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE AddGroupPhoto(@group_id int(100),@ photo_id int(100))
-AS
-INSERT INTO GroupPhotos VALUES(@group_id,@photo_id);
-GO
+DELIMITER //
+CREATE PROCEDURE AddGroupPhoto(@photo_id INT(100),@group_id INT(100))
+BEGIN
+INSERT INTO GroupPhotos VALUES(@photo_id,group_id);
+END //
+DELIMITER;
 
-CREATE PROCEDURE AddPost (@post_id int(100),@user_id int(100),@post_text text,@post_datetime DATETIME)
-AS
+DELIMITER //
+CREATE PROCEDURE AddPost (@post_id INT(100),@user_id INT(100),@post_text text,@post_datetime DATETIME)
+BEGIN
 INSERT INTO Posts VALUES(@post_id,@user_id,@post_text,@post_datetime);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE AddComment(@comment_id int(100),@post_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE AddComment(@comment_id INT(100),@post_id INT(100))
+BEGIN
 INSERT INTO Comments VALUES(@comment_id,@post_id);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE AddPhotoComment(@comment_id int(100),@ photo_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE AddPhotoComment(@comment_id INT(100),@photo_id INT(100))
+BEGIN
 INSERT INTO PhotoComments VALUES(@comment_id,@photo_id);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE AddFriend (@user_id int(100),@friend_id int(100),@friend_type VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE AddFriend (@user_id INT(100),@friend_id INT(100),@friend_type VARCHAR(100))
+BEGIN
 INSERT INTO Friends VALUES(@user_id,@friend_id,@friend_type);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE CreateGroup ( @group_id int(100),@user_id int(100),@group_name VARCHAR(100),@group_description text)
-AS
+DELIMITER //
+CREATE PROCEDURE CreateGroup ( @group_id INT(100),@user_id int(100),@group_name VARCHAR(100),@group_description text)
+BEGIN
 INSERT INTO Groups VALUES(@group_id,@user_id,@group_name,@group_description);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE AddGroupPost ( @group_id int(100),@post_id VARCHAR)
-AS
-INSERT INTO GroupPosts VALUES(@group_id,@post_id);
-GO
+DELIMITER //
+CREATE PROCEDURE AddGroupPost (@post_id INT,@group_id INT(100))
+BEGIN
+INSERT INTO GroupPosts VALUES(@post_id,@group_id);
+END //
+DELIMITER;
 
-CREATE PROCEDURE AddGroupMembers ( @group_id int(100),@user_id int(100),@member_status VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE AddGroupMembers ( @group_id INT(100),@user_id INT(100),@member_status VARCHAR(100))
+BEGIN
 INSERT INTO GroupMembers VALUES(@group_id,@user_id,@member_status);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE CreateGuests (@guest_id VARCHAR(100),@guest_name VARCHAR(100),@guest_email VARCHAR(100),@guest_addr VARCHAR(100),@guest_password VARCHAR (100),@guest_telephone VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE CreateGuests (@guest_id INT(100),@guest_name VARCHAR(100),@guest_email VARCHAR(100),@guest_addr VARCHAR(100),@guest_password VARCHAR (100),@guest_telephone VARCHAR(100))
+BEGIN
 INSERT INTO GroupMembers VALUES(@guest_id,@guest_name,@guest_email,@guest_addr,@guest_password,@guest_telephone);
-GO
+END //
+DELIMITER;
 
+DELIMITER //
 CREATE PROCEDURE GetJustPosts 
-AS
-SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments);
-GO
+BEGIN
+SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ;
+END //
+DELIMITER;
 
+DELIMITER //
 CREATE PROCEDURE GetAllComments
-AS
+BEGIN
 SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments);
-GO
+END //
+DELIMITER;
 
+DELIMITER //
+CREATE PROCEDURE GetAllPhotoComments
+BEGIN
+SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM PhotoComments);
+END //
+DELIMITER;
+
+
+
+DELIMITER //
 CREATE PROCEDURE GetAllGroupPosts 
-AS
+BEGIN
 SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM GroupPosts);
-GO
+END //
+DELIMITER;
 
+DELIMITER //
 CREATE PROCEDURE GetAllGroupPhotos 
-AS
+BEGIN
 SELECT * FROM Photos WHERE photo_id IN (SELECT photo_id FROM GroupPhotos);
-GO
+END //
+DELIMITER;
 
+DELIMITER //
 CREATE PROCEDURE GetAllUsers
-AS
+BEGIN
 SELECT * FROM Users;
-GO
+END //
+DELIMITER;
 
+DELIMITER //
 CREATE PROCEDURE GetAllGuests
-AS
+BEGIN
 SELECT * FROM Guests;
-GO
+END //
+DELIMITER;
 
 
+DELIMITER //
 CREATE PROCEDURE GetAllPhotos
-AS
+BEGIN
 SELECT * FROM Photos;
-GO
+END //
+DELIMITER;
 
+DELIMITER //
 CREATE PROCEDURE GetAllGroups
-AS
+BEGIN
 SELECT * FROM Groups;
-GO
+END //
+DELIMITER;
 
+DELIMITER //
 CREATE PROCEDURE GetAllEmails
-AS
+BEGIN
 SELECT * FROM Emails;
-GO
+END //
+DELIMITER;
 
+DELIMITER //
 CREATE PROCEDURE GetAllTelephones
-AS
+BEGIN
 SELECT * FROM Telephones;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetPostComments (@post_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetPostComments (@post_id INT(100))
+BEGIN
 SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments WHERE post_id=@post_id) ;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetPhotoComments (@ photo_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetPhotoComments (@photo_id INT(100))
+BEGIN
 SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM PhotoComments WHERE photo_id=@photo_id) ;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetGroupCreator (@group_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetGroupCreator (@group_id INT(100))
+BEGIN
 SELECT * FROM Users WHERE user_id IN (SELECT user_id FROM Groups WHERE group_id=@group_id) ;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetGroupName (@group_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetGroupName (@group_id INT(100))
+BEGIN
 SELECT group_name FROM Groups WHERE group_id=@group_id ;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetGroupDescription (@group_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetGroupDescription (@group_id INT(100))
+BEGIN
 SELECT group_description FROM Groups WHERE group_id=@group_id ;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetGroupPosts (@group_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetGroupPosts (@group_id INT(100))
+BEGIN
 SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM GroupPosts WHERE group_id=@group_id) ;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetGroupPhotos (@group_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetGroupPhotos (@group_id INT(100))
+BEGIN
 SELECT * FROM Photos WHERE photo_id IN (SELECT photo_id FROM GroupPhotos WHERE group_id=@group_id) ;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetGroupMembers (@group_id int(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetGroupMembers (@group_id INT(100))
+BEGIN
 SELECT * FROM Users WHERE user_id IN (SELECT user_id FROM GroupMembers WHERE group_id=@group_id) ;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserFname (@user_id VARCHAR(100))
-AS
-SELECT user_f_name FROM Users WHERE user_id=@user_id;
-GO
+DELIMITER //
+CREATE PROCEDURE GetUserFname (@user_id INT(100))
+BEGIN
+SELECT user_fname FROM Users WHERE user_id=@user_id
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserLname (@user_id VARCHAR(100))
-AS
-SELECT user_Lname FROM Users WHERE user_id=@user_id;
-GO
+DELIMITER //
+CREATE PROCEDURE GetUser_Lname (@user_id INT(100))
+BEGIN
+SELECT user_l_name FROM Users WHERE user_id=@user_id;
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserDob (@user_id VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetUserDob (@user_id INT(100))
+BEGIN
 SELECT user_dob FROM Users WHERE user_id=@user_id;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserPassword (@user_id VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetUserPassword (@user_id INT(100))
+BEGIN
 SELECT user_password FROM Users WHERE user_id=@user_id;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserAddress (@user_id VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetUserAddress (@user_id INT(100))
+BEGIN
 SELECT user_addr FROM Users WHERE user_id=@user_id;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserEmail (@user_id VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetUserEmail (@user_id INT(100))
+BEGIN
 SELECT user_email FROM Emails WHERE user_id=@user_id;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserTelephone (@user_id VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetUserTelephone (@user_id INT(100))
+BEGIN
 SELECT user_tel FROM Telephones WHERE user_id=@user_id;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserProfile (@user_id VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetUserProfile (@user_id INT(100))
+BEGIN
 SELECT * FROM Profiles WHERE user_id=@user_id;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserPosts (@user_id VARCHAR(100))
-AS
-SELECT * FROM Posts WHERE user_id=@user_id AND NOT post_id IN (SELECT comment_id FROM Comments) ;
-GO
+DELIMITER //
+CREATE PROCEDURE GetUserPosts (@user_id INT(100))
+BEGIN
+SELECT * FROM Posts WHERE user_id=@user_id AND NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ;
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserComments (@user_id VARCHAR(100))
-AS
-SELECT * FROM Posts WHERE user_id=@user_id AND post_id IN (SELECT comment_id FROM Comments) ;
-GO
+DELIMITER //
+CREATE PROCEDURE GetUserComments (@user_id INT(100))
+BEGIN
+SELECT * FROM Posts WHERE user_id=@user_id AND post_id IN (SELECT comment_id FROM Comments);
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserFriends (@user_id VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE GetUserPhotoComments (@user_id INT(100))
+BEGIN
+SELECT * FROM Posts WHERE user_id=@user_id AND post_id IN (SELECT comment_id FROM PhotoComments);
+END //
+DELIMITER;
+
+DELIMITER //
+CREATE PROCEDURE GetUserFriends (@user_id INT(100))
+BEGIN
 SELECT * FROM Users WHERE user_id IN (SELECT friend_id FROM Friends WHERE user_id=@user_id);
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserPhotos (@user_id VARCHAR(100))
-AS
-SELECT * FROM Photos WHERE user_id=@user_id;
-GO
+DELIMITER //
+CREATE PROCEDURE GetUserPhotos (@user_id INT(100))
+BEGIN
+SELECT * FROM Photos WHERE user_id=@user_id AND  NOT photo_id IN (SELECT photo_id FROM GroupPhotos);
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetFriendsPosts (@user_id int(100),@friend_id int(100))
-AS
-SELECT * FROM Posts WHERE user_id IN  (SELECT friend_id FROM Friends WHERE user_id=@user_id AND friend_id=@friend_id);
-GO
+DELIMITER //
+CREATE PROCEDURE GetFriendsPosts (@user_id INT(100))
+BEGIN
+SELECT * FROM Posts WHERE user_id IN  (SELECT friend_id FROM Friends WHERE user_id=@user_id) AND NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ;;
+END //
+DELIMITER;
 
-CREATE PROCEDURE GetUserFriendsNames (@user_id VARCHAR(100))
-AS
-SELECT user_f_name,user_l_name FROM Users WHERE user_id IN (SELECT friend_id FROM Friends WHERE user_id1=@user_id);
-GO
+DELIMITER //
+CREATE PROCEDURE GetUserFriendsNames (@user_id INT(100))
+BEGIN
+SELECT user_fname,user_l_name FROM Users WHERE user_id IN (SELECT friend_id FROM Friends WHERE user_id1=@user_id);
+END //
+DELIMITER;
 
+DELIMITER //
 CREATE PROCEDURE GetAllUsers_Friends_posts 
-AS
+BEGIN
 SELECT * FROM Users INNER JOIN Friends ON Users.user_id=Friends.user_id INNER JOIN Posts ON Friends.user_id=Posts.user_id;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE UpdateUserProfilePicture (@user_id int(100),@profile_photo IMAGE)
-AS
+DELIMITER //
+CREATE PROCEDURE UpdateUserProfilePicture (@user_id INT(100),@profile_photo BLOB)
+BEGIN
 UPDATE Profiles SET profile_photo=@profile_photo WHERE user_id=@user_id;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE UpdateUserProfileDescription (@user_id int(100),@profile_description TEXT)
-AS
+DELIMITER //
+CREATE PROCEDURE UpdateUserProfileDescription (@user_id INT(100),@profile_description TEXT)
+BEGIN
 UPDATE Profiles SET profile_description=@profile_description WHERE user_id=@user_id;
-GO
+END //
+DELIMITER;
 
-CREATE PROCEDURE UpdateUserFirstName (@user_id int(100),@user_f_name VARCHAR(100))
-AS
-UPDATE Users SET user_f_name=@user_f_name WHERE user_id=@user_id;
-GO
+DELIMITER //
+CREATE PROCEDURE UpdateUserFirstName (@user_id INT(100),@user_fname VARCHAR(100))
+BEGIN
+UPDATE Users SET user_fname=@user_fname WHERE user_id=@user_id;
+END //
+DELIMITER;
 
-CREATE PROCEDURE UpdateUserLastName (@user_id int(100),@user_l_name VARCHAR(100))
-AS
+DELIMITER //
+CREATE PROCEDURE UpdateUserLastName (@user_id INT(100),@user_l_name VARCHAR(100))
+BEGIN
 UPDATE Users SET user_l_name=@user_l_name WHERE user_id=@user_id;
-GO
-
-
-CREATE VIEW [Posts] 
-AS
-SELECT * FROM Posts;
+END //
+DELIMITER;
