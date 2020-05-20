@@ -35,12 +35,14 @@ def home(page):
     startat=1*perpage
   startat=page*perpage
   cur = mysql.connection.cursor()
-  cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
+  cur.execute("SELECT * FROM Posts WHERE post_id NOT IN (SELECT post_id FROM Comments ) OR post_id NOT IN (SELECT post_id FROM PhotoComments ) OR post_id NOT IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
   posts = cur.fetchall()
-  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments)")
+  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM Comments)")
   allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
+  print(posts[0])
+  print(allComments[0])
   cur.close()
   if 'search' in request.form:
     findUser = request.form['search']
@@ -101,7 +103,7 @@ def profile(page):
   posts = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
-  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments)")
+  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM Comments)")
   allComments = cur.fetchall()
   cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
   result = cur.fetchone()
@@ -276,7 +278,7 @@ def groups():
   cur = mysql.connection.cursor()
   cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
   posts = cur.fetchall()
-  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments)")
+  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM Comments)")
   allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
@@ -411,7 +413,7 @@ def adminReport(page):
   cur = mysql.connection.cursor()
   cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
   posts = cur.fetchall()
-  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT comment_id FROM Comments)")
+  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM Comments)")
   allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()

@@ -170,10 +170,10 @@
             </button>
           </div>
           <div class="modal-body">
-            {% for c in allComments %}
-            {% if r[0] == c[0] %}
-              <div>{{c[2]}}</div>
-            {% endif %}
+            {% for i in allComments %}
+              {% if r[0] == i[0] %}
+                <div>{{i[2]}}</div>
+              {% endif %}
             {% endfor %}
           </div>
           <div class="modal-footer">
