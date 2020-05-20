@@ -29,6 +29,7 @@ def login_required(f):
 @login_required
 def home(page):
   uid = session['uid']
+  photo = None
   postDate = str(datetime.now())
   perpage=10
   startat=((page-1)*perpage)
@@ -45,10 +46,15 @@ def home(page):
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM posts WHERE user_id='"+findUser+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
     posts = cur.fetchall()
+    cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+findUser+"'")
+    result = cur.fetchone()
+    if result:
+      obj = result[0]
+      photo = b64encode(obj).decode("utf-8")
     cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+findUser+"'")
     name = cur.fetchone()
     cur.close()
-    return render_template('profile.html', posts=posts, name=name, uid=uid, allComments=allComments, page=page)
+    return render_template('profile.html', posts=posts, name=name, uid=uid, allComments=allComments, page=page, photo=photo)
   if 'newPost' in request.form:
     newPost = request.form['post']
     cur = mysql.connection.cursor()
@@ -96,18 +102,8 @@ def profile(page):
   startat=page*perpage
   uid = session['uid']
   cur = mysql.connection.cursor()
-  cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
-  posts = cur.fetchall()
-  cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
-  name = cur.fetchone()
   cur.execute("SELECT posts.*, comments.post_id FROM Posts INNER JOIN  comments ON posts.post_id=comments.comment_id WHERE posts.post_id IN (SELECT comments.comment_id FROM Comments)")
   allComments = cur.fetchall()
-  cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
-  result = cur.fetchone()
-  if result:
-    obj = result[0]
-    photo = b64encode(obj).decode("utf-8")
-  cur.close()
   if request.method == 'POST':
     postDate = str(datetime.now())
     if 'search' in request.form:
@@ -185,6 +181,16 @@ def profile(page):
         obj = result[0]
       photo = b64encode(obj).decode("utf-8")
       return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo, allComments=allComments, page=page)
+  cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
+  posts = cur.fetchall()
+  cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
+  name = cur.fetchone()
+  cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
+  result = cur.fetchone()
+  if result:
+    obj = result[0]
+    photo = b64encode(obj).decode("utf-8")
+  cur.close()
   return render_template('profile.html', posts=posts, name=name, photo=photo, allComments=allComments, page=page)
 
 @app.route('/group', methods=['GET', 'POST'])
