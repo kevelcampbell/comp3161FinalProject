@@ -25,7 +25,7 @@ def login_required(f):
   return wrap
 
 @app.route('/home', methods=['GET', 'POST'], defaults={'page':1})
-@app.route('/home/page/<int:page>')
+@app.route('/home/page/<int:page>', methods=['GET', 'POST'])
 @login_required
 def home(page):
   uid = session['uid']
@@ -37,7 +37,7 @@ def home(page):
   cur = mysql.connection.cursor()
   cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
   posts = cur.fetchall()
-  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM Comments)")
+  cur.execute("SELECT posts.*, comments.post_id FROM Posts INNER JOIN  comments ON posts.post_id=comments.comment_id WHERE posts.post_id IN (SELECT comments.comment_id FROM Comments)")
   allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
@@ -87,7 +87,7 @@ def home(page):
   return render_template('home.html', posts=posts, name=name, allComments=allComments, page=page)
 
 @app.route('/profile', methods=['GET', 'POST'], defaults={'page':1})
-@app.route('/profile/page/<int:page>')
+@app.route('/profile/page/<int:page>', methods=['GET', 'POST'])
 @login_required
 def profile(page):
   postResult = None
@@ -103,7 +103,7 @@ def profile(page):
   posts = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
-  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM Comments)")
+  cur.execute("SELECT posts.*, comments.post_id FROM Posts INNER JOIN  comments ON posts.post_id=comments.comment_id WHERE posts.post_id IN (SELECT comments.comment_id FROM Comments)")
   allComments = cur.fetchall()
   cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
   result = cur.fetchone()
@@ -278,7 +278,7 @@ def groups():
   cur = mysql.connection.cursor()
   cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
   posts = cur.fetchall()
-  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM Comments)")
+  cur.execute("SELECT posts.*, comments.post_id FROM Posts INNER JOIN  comments ON posts.post_id=comments.comment_id WHERE posts.post_id IN (SELECT comments.comment_id FROM Comments)")
   allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
@@ -388,7 +388,7 @@ def signup():
     return render_template('signup.html')
 
 @app.route('/adminReport', methods=['GET', 'POST'], defaults={'page':1})
-@app.route('/adminReport/page/<int:page>')
+@app.route('/adminReport/page/<int:page>', methods=['GET', 'POST'])
 @login_required
 def adminReport(page):
   uid = session['uid']
@@ -413,7 +413,7 @@ def adminReport(page):
   cur = mysql.connection.cursor()
   cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) OR post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC")
   posts = cur.fetchall()
-  cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM Comments)")
+  cur.execute("SELECT posts.*, comments.post_id FROM Posts INNER JOIN  comments ON posts.post_id=comments.comment_id WHERE posts.post_id IN (SELECT comments.comment_id FROM Comments)")
   allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()

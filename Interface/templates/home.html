@@ -147,7 +147,7 @@
             <form method="post">
               <div class="modal-body">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="add a comment" value="comment" name="comment"/>
+                    <input type="text" class="form-control" placeholder="add a comment" name="comment"/>
                     <input hidden type="text" class="form-control" value="{{r[0]}}" name="postID"/>
                 </div>
               </div>
@@ -171,8 +171,10 @@
           </div>
           <div class="modal-body">
             {% for i in allComments %}
-              {% if r[0] == i[0] %}
-                <div>{{i[2]}}</div>
+              {% if r[0] == i[4] %}
+                <p>{{i[2]}}</p>
+                <footer class="blockquote-footer"><cite title="Source Title">{{i[3]}}</cite></footer>
+                <br/>
               {% endif %}
             {% endfor %}
           </div>
