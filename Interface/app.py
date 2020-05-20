@@ -34,7 +34,7 @@ def home(page):
   perpage=10
   startat=((page-1)*perpage)
   cur = mysql.connection.cursor()
-  cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
+  cur.execute("SELECT * FROM Posts WHERE post_id NOT IN (SELECT comment_id FROM Comments ) AND post_id NOT IN (SELECT comment_id FROM PhotoComments ) AND post_id Not IN (SELECT post_id FROM GroupPosts) AND user_id IN (SELECT Friend_id FROM Friends WHERE user_id='"+uid+"') AND '"+uid+"' in (SELECT user_id FROM Posts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
   posts = cur.fetchall()
   cur.execute("SELECT posts.*, comments.post_id FROM Posts INNER JOIN  comments ON posts.post_id=comments.comment_id WHERE posts.post_id IN (SELECT comments.comment_id FROM Comments)")
   allComments = cur.fetchall()
@@ -124,6 +124,20 @@ def profile(page):
       friendType = request.form['friendType']
       friendID = request.form['friendID']
       cur = mysql.connection.cursor()
+      cur.execute("SELECT * FROM posts WHERE user_id='"+friendID+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
+      posts = cur.fetchall()
+      cur.execute("SELECT user_fname, user_lname, user_id FROM users WHERE user_id='"+friendID+"'")
+      name = cur.fetchone()
+      cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+friendID+"'")
+      result = cur.fetchone()
+      if result:
+        obj = result[0]
+        photo = b64encode(obj).decode("utf-8")
+      cur.execute("SELECT * FROM friends WHERE user_id='"+uid+"' AND friend_id='"+friendID+"'")
+      friend = cur.fetchone()
+      if friend:
+        postResult = 'you are already friends'
+        return render_template('profile.html', posts=posts, name=name, postResult=postResult, uid=uid, photo=photo, allComments=allComments, page=page)
       cur.execute("INSERT INTO friends (user_id, friend_id, friend_type) VALUES ('"+uid+"', '"+friendID+"', '"+friendType+"')")
       mysql.connection.commit()
       cur.close()
@@ -145,7 +159,7 @@ def profile(page):
       cur = mysql.connection.cursor()
       cur.execute("INSERT INTO photos (user_id, photo_name, photo_image, photo_datetime) VALUES ('"+uid+"', '"+newPost+"', %s, '"+postDate+"')", [newPhoto])
       mysql.connection.commit()
-      cur.execute("INSERT INTO profiles (user_id, profile_description, profile_photo) VALUES ('"+uid+"', '"+newPost+"', %s)", [newPhoto])
+      cur.execute("UPDATE profiles SET profile_description=%s, profile_photo=%s WHERE user_id=%s", (newPost, newPhoto, uid))
       mysql.connection.commit()
       cur.execute("SELECT profile_photo FROM profiles WHERE user_id='"+uid+"'")
       result = cur.fetchone()
@@ -158,6 +172,8 @@ def profile(page):
         cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
         posts = cur.fetchall()
         postResult = 'your post has been uploaded.'
+        cur.execute("SELECT user_fname, user_lname, user_id FROM users WHERE user_id='"+uid+"'")
+        name = cur.fetchone()
         return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo, allComments=allComments, page=page)
       cur.execute("INSERT INTO profiles (user_id, profile_description, profile_photo) VALUES ('"+uid+"', '"+newPost+"', '"+photo+"')")
       mysql.connection.commit()
@@ -180,6 +196,8 @@ def profile(page):
       if result:
         obj = result[0]
       photo = b64encode(obj).decode("utf-8")
+      cur.execute("SELECT user_fname, user_lname, user_id FROM users WHERE user_id='"+uid+"'")
+      name = cur.fetchone()
       return render_template('profile.html', posts=posts, name=name, postResult=postResult, photo=photo, allComments=allComments, page=page)
   cur.execute("SELECT * FROM posts WHERE user_id='"+uid+"' ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
   posts = cur.fetchall()
