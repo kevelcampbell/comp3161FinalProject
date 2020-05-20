@@ -169,12 +169,65 @@
     {% endif %}
     {% for r in posts %}
     <div class="card">
-      <div class="card-header">{{name[0]}} {{name[1]}}</div>
+      <div class="card-header">{{r[4]}} {{r[5]}}</div>
       <div class="card-body">
         <blockquote class="blockquote mb-0">
           <p>{{r[2]}}</p>
           <footer class="blockquote-footer"><cite title="Source Title">{{r[3]}}</cite></footer>
+          <br/>
+          <span class="comment" data-toggle="modal" data-target="#{{r[0]}}1">View comments</span>
+          <form id="comment" action="" method="post">
+              <div class="form-group">
+                  <input type="text" class="form-control" placeholder="add a comment" name="comment" data-toggle="modal" data-target="#{{r[0]}}"/>
+              </div>
+          </form>
         </blockquote>
+      </div>
+      <div class="modal fade" id="{{r[0]}}" tabindex="-1" role="dialog" aria-labelledby="post comment" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Comments</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form method="post">
+              <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="add a comment" value="comment" name="comment"/>
+                    <input hidden type="text" class="form-control" value="{{r[0]}}" name="postID"/>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" name="newComment">Post</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="{{r[0]}}1" tabindex="-1" role="dialog" aria-labelledby="view comments" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Comments</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            {% for i in allComments %}
+              {% if r[0] == i[0] %}
+                <div>{{i[2]}}</div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
       </div>
     </div>
     {% endfor %}

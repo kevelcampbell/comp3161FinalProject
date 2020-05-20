@@ -127,15 +127,15 @@
           <p>{{r[2]}}</p>
           <footer class="blockquote-footer"><cite title="Source Title">{{r[3]}}</cite></footer>
           <br/>
-          <span class="comment" data-toggle="modal" data-target="#commentModal">View comments</span>
+          <span class="comment" data-toggle="modal" data-target="#{{r[0]}}1">View comments</span>
           <form id="comment" action="" method="post">
               <div class="form-group">
-                  <input type="text" class="form-control" placeholder="add a comment" name="comment" data-toggle="modal" data-target="#postCommentModal"/>
+                  <input type="text" class="form-control" placeholder="add a comment" name="comment" data-toggle="modal" data-target="#{{r[0]}}"/>
               </div>
           </form>
         </blockquote>
       </div>
-      <div class="modal fade" id="postCommentModal" tabindex="-1" role="dialog" aria-labelledby="post comment" aria-hidden="true">
+      <div class="modal fade" id="{{r[0]}}" tabindex="-1" role="dialog" aria-labelledby="post comment" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
@@ -160,7 +160,7 @@
         </div>
       </div>
     </div>
-    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="view comments" aria-hidden="true">
+    <div class="modal fade" id="{{r[0]}}1" tabindex="-1" role="dialog" aria-labelledby="view comments" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">

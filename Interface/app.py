@@ -35,14 +35,12 @@ def home(page):
     startat=1*perpage
   startat=page*perpage
   cur = mysql.connection.cursor()
-  cur.execute("SELECT * FROM Posts WHERE post_id NOT IN (SELECT post_id FROM Comments ) OR post_id NOT IN (SELECT post_id FROM PhotoComments ) OR post_id NOT IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
+  cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
   posts = cur.fetchall()
   cur.execute("SELECT * FROM Posts WHERE post_id IN (SELECT post_id FROM Comments)")
   allComments = cur.fetchall()
   cur.execute("SELECT user_fname, user_lname FROM users WHERE user_id='"+uid+"'")
   name = cur.fetchone()
-  print(posts[0])
-  print(allComments[0])
   cur.close()
   if 'search' in request.form:
     findUser = request.form['search']
@@ -68,7 +66,9 @@ def home(page):
     cur = mysql.connection.cursor()
     cur.execute("INSERT INTO posts (user_id, post_text, post_datetime) VALUES ('"+uid+"', '"+newComment+"', '"+postDate+"')")
     mysql.connection.commit()
-    cur.execute("INSERT INTO comments (post_id) VALUES ('"+postID+"')")
+    cur.execute("SELECT MAX(post_id) FROM posts")
+    newPostID = str(cur.fetchone()[0])
+    cur.execute("INSERT INTO comments (comment_id, post_id) VALUES ('"+newPostID+"', '"+postID+"')")
     mysql.connection.commit()
     cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
     posts = cur.fetchall()
