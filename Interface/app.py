@@ -31,9 +31,7 @@ def home(page):
   uid = session['uid']
   postDate = str(datetime.now())
   perpage=10
-  if page == 1:
-    startat=1*perpage
-  startat=page*perpage
+  startat=((page-1)*perpage)
   cur = mysql.connection.cursor()
   cur.execute("SELECT * FROM Posts WHERE NOT post_id IN (SELECT comment_id FROM Comments ) AND NOT post_id IN (SELECT comment_id FROM PhotoComments ) AND  NOT post_id IN (SELECT post_id FROM GroupPosts) ORDER BY post_datetime DESC limit %s, %s", (startat,perpage))
   posts = cur.fetchall()
@@ -94,8 +92,7 @@ def profile(page):
   photo = None
   postDate = str(datetime.now())
   perpage=10
-  if page == 1:
-    startat=1*perpage
+  startat=((page-1)*perpage)
   startat=page*perpage
   uid = session['uid']
   cur = mysql.connection.cursor()
@@ -399,13 +396,11 @@ def adminReport(page):
   for i in admins:
     if(str(i) == uid):
       perpage=15
-      if page == 1:
-        startat=1*perpage
-      startat=page*perpage
+      startat=((page-1)*perpage)
       cur = mysql.connection.cursor()
       cur.execute("SELECT user_id, user_fname, user_lname FROM users limit %s, %s", (startat,perpage))
       members = cur.fetchall()
-      cur.execute("SELECT * FROM friends ")
+      cur.execute("SELECT * FROM friends")
       friends = cur.fetchall()
       cur.execute("SELECT * FROM posts ORDER BY post_datetime DESC")
       posts = cur.fetchall()

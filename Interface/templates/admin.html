@@ -129,11 +129,10 @@
               <span class="sr-only">Previous</span>
             </a>
           </li>
-          {% if page > 0 and page < 2 %}
-          <li class="page-item"><a class="page-link" href="/adminReport/page/{{page-1}}">{{page-1}}</a></li>
+          {% if page > 2 %}
+          <li class="page-item"><a class="page-link" href="/adminReport/page/{{page-1}}">{{page-2}}</a></li>
           {% endif %}
           {% if page > 1 %}
-          <li class="page-item"><a class="page-link" href="/adminReport/page/{{page-2}}">{{page-2}}</a></li>
           <li class="page-item"><a class="page-link" href="/adminReport/page/{{page-1}}">{{page-1}}</a></li>
           {% endif %}
           <li class="page-item"><a class="page-link" href="/adminReport/page/{{page}}">{{page}}</a></li>
